@@ -967,6 +967,13 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
         email: '953623244051@ritrjpm.ac.in',
         bio: 'Worked on building REST API endpoints, handling authentication routes, and aligning frontend requests with server response bodies.',
         avatar: 'SP'
+      },
+      {
+        name: 'Vaishnavi S',
+        role: 'Frontend Developer',
+        email: 'vaishnavis.dev@gmail.com',
+        bio: 'Designed and integrated the main KPI metrics widgets (total events, critical threats, active incidents) on the dashboard overview panel.',
+        avatar: 'VS'
       }
     ];
 
