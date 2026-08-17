@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { getEvents, getStats } from '../services/api';
 import DashboardCharts from '../charts/DashboardCharts';
+import EventDetails from './EventDetails';
 import '../styles/DashboardPage.css';
 
 export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
@@ -19,11 +20,12 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
   const [events, setEvents] = useState([]);
   const [stats, setStats] = useState({
     totalEvents: 0,
-    criticalThreats: 0,
-    highSeverityAlerts: 0,
-    vulnerabilities: 0,
-    activeIncidents: 0
+    anomaliesDetected: 0,
+    normalEvents: 0,
+    highRiskEvents: 0,
+    criticalThreats: 0
   });
+  const [investigatingEventId, setInvestigatingEventId] = useState(null);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,8 +140,17 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
         }
 
         const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+        const prediction = template.severity === 'CRITICAL' ? 'Critical' : 'Suspicious';
+        const confidence = template.severity === 'CRITICAL' ? 95 : 78;
+        const reasons = [
+          `${template.name} triggered anomaly alert`,
+          `Targeting enterprise asset ${template.target}`,
+          `High risk activity signature matched`
+        ];
+
         const newIncident = {
-          id: Date.now(),
+          id: `EVT-${Date.now().toString().slice(-4)}`,
+          event_id: `EVT-${Date.now().toString().slice(-4)}`,
           time: time,
           timestamp: time,
           name: template.name,
@@ -150,7 +161,13 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
           destination_ip: template.target,
           severity: template.severity,
           status: 'UNRESOLVED',
-          is_high_risk: template.severity === 'CRITICAL'
+          is_high_risk: template.severity === 'CRITICAL',
+          prediction: prediction,
+          confidence: confidence,
+          reasons: reasons,
+          failed_login_attempts: template.event_type === 'Brute Force' ? 12 : 0,
+          cvss_score: template.severity === 'CRITICAL' ? 9.8 : 6.5,
+          risk_score: template.severity === 'CRITICAL' ? 95 : 78
         };
 
         setEvents((prev) => [newIncident, ...prev]);
@@ -159,13 +176,17 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
         logTerminal(`Intrusion anomaly detected: ${template.name} targeting host ${template.target}.`, alertType);
         triggerToast(`${template.name} from ${template.source} targeting ${template.target}`, alertType);
 
-        setStats((prev) => ({
-          ...prev,
-          totalEvents: prev.totalEvents + 1,
-          criticalThreats: template.severity === 'CRITICAL' ? prev.criticalThreats + 1 : prev.criticalThreats,
-          highSeverityAlerts: template.severity === 'WARNING' ? prev.highSeverityAlerts + 1 : prev.highSeverityAlerts,
-          activeIncidents: prev.activeIncidents + 1
-        }));
+        setStats((prev) => {
+          const isCrit = template.severity === 'CRITICAL';
+          return {
+            ...prev,
+            totalEvents: prev.totalEvents + 1,
+            anomaliesDetected: prev.anomaliesDetected + 1,
+            criticalThreats: isCrit ? prev.criticalThreats + 1 : prev.criticalThreats,
+            highRiskEvents: !isCrit ? prev.highRiskEvents + 1 : prev.highRiskEvents,
+            normalEvents: prev.normalEvents // remains same
+          };
+        });
       }, delayMs);
     } else {
       if (simulationIntervalRef.current) {
@@ -182,6 +203,7 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
 
   // Handler functions
   const handleInvestigate = (id) => {
+    setInvestigatingEventId(id);
     setEvents((prev) => 
       prev.map((evt) => {
         if (evt.id === id) {
@@ -326,44 +348,44 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
             <span className="kpi-title">Total Events</span>
             <div className="kpi-icon-circle"><Activity size={18} /></div>
           </div>
-          <h2 className="kpi-value">{stats.totalEvents.toLocaleString()}</h2>
+          <h2 className="kpi-value">{(stats.totalEvents || 0).toLocaleString()}</h2>
           <span className="kpi-display">Total logged security network events</span>
         </div>
 
         <div className="kpi-card kpi-red">
           <div className="kpi-card-header">
-            <span className="kpi-title">Critical Threats</span>
+            <span className="kpi-title">Anomalies Detected</span>
             <div className="kpi-icon-circle"><ShieldAlert size={18} /></div>
           </div>
-          <h2 className="kpi-value">{stats.criticalThreats.toLocaleString()}</h2>
-          <span className="kpi-display">Total severe active threat counts</span>
-        </div>
-
-        <div className="kpi-card kpi-orange">
-          <div className="kpi-card-header">
-            <span className="kpi-title">High Alerts</span>
-            <div className="kpi-icon-circle"><AlertTriangle size={18} /></div>
-          </div>
-          <h2 className="kpi-value">{stats.highSeverityAlerts.toLocaleString()}</h2>
-          <span className="kpi-display">High severity vulnerabilities flagged</span>
-        </div>
-
-        <div className="kpi-card kpi-purple">
-          <div className="kpi-card-header">
-            <span className="kpi-title">Vulnerabilities</span>
-            <div className="kpi-icon-circle"><Bug size={18} /></div>
-          </div>
-          <h2 className="kpi-value">{stats.vulnerabilities.toLocaleString()}</h2>
-          <span className="kpi-display">Scanned bugs or CVSS scores &ge; 7</span>
+          <h2 className="kpi-value">{(stats.anomaliesDetected || 0).toLocaleString()}</h2>
+          <span className="kpi-display">Total AI-flagged anomaly logs</span>
         </div>
 
         <div className="kpi-card kpi-green">
           <div className="kpi-card-header">
-            <span className="kpi-title">Active Incidents</span>
+            <span className="kpi-title">Normal Events</span>
+            <div className="kpi-icon-circle"><ShieldCheck size={18} /></div>
+          </div>
+          <h2 className="kpi-value">{(stats.normalEvents || 0).toLocaleString()}</h2>
+          <span className="kpi-display">Baseline non-threat events</span>
+        </div>
+
+        <div className="kpi-card kpi-orange">
+          <div className="kpi-card-header">
+            <span className="kpi-title">High-Risk Events</span>
+            <div className="kpi-icon-circle"><AlertTriangle size={18} /></div>
+          </div>
+          <h2 className="kpi-value">{(stats.highRiskEvents || 0).toLocaleString()}</h2>
+          <span className="kpi-display">High-risk warning level classification</span>
+        </div>
+
+        <div className="kpi-card kpi-purple">
+          <div className="kpi-card-header">
+            <span className="kpi-title">Critical Threats</span>
             <div className="kpi-icon-circle"><Siren size={18} /></div>
           </div>
-          <h2 className="kpi-value">{stats.activeIncidents.toLocaleString()}</h2>
-          <span className="kpi-display">Total unresolved threat counts</span>
+          <h2 className="kpi-value">{(stats.criticalThreats || 0).toLocaleString()}</h2>
+          <span className="kpi-display">Severe priority exploits flagged</span>
         </div>
       </section>
 
@@ -444,7 +466,7 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
       {/* Real-time event log table */}
       <section className="logs-section">
         <div className="logs-header">
-          <h3 className="logs-title text-white">Real-Time Threat Vector Log</h3>
+          <h3 className="logs-title text-white">Threat Detection Table</h3>
           
           <div className="logs-toolbar d-flex flex-wrap align-items-center gap-3">
             <div className="search-bar">
@@ -521,12 +543,12 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
           <table>
             <thead>
               <tr>
-                <th>Incidence Time</th>
-                <th>Threat Vector</th>
-                <th>Source Address</th>
-                <th>Target Host</th>
+                <th>Event ID</th>
+                <th>Event Type</th>
+                <th>AI Prediction</th>
+                <th>Confidence</th>
                 <th>Severity</th>
-                <th>Status Badge</th>
+                <th>Timestamp</th>
                 <th>Operator Actions</th>
               </tr>
             </thead>
@@ -539,32 +561,38 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
                 </tr>
               ) : (
                 filteredEvents.slice(0, 15).map((log) => {
-                  let statusLabel = 'Unresolved';
-                  let badgeClass = 'badge-critical';
-                  if (log.status === 'UNDER_INVESTIGATION') {
-                    statusLabel = 'Investigating';
-                    badgeClass = 'badge-warning';
-                  } else if (log.status === 'RESOLVED') {
-                    statusLabel = 'Resolved';
-                    badgeClass = 'badge-low';
+                  let predictionLabel = log.prediction || 'Normal';
+                  let predClass = 'badge-low';
+                  if (predictionLabel === 'Critical') {
+                    predClass = 'badge-critical';
+                  } else if (predictionLabel === 'Suspicious') {
+                    predClass = 'badge-warning';
                   }
 
                   return (
                     <tr key={log.id}>
-                      <td className="font-mono text-secondary small">{log.time || log.timestamp}</td>
+                      <td className="font-mono text-info small">
+                        <button 
+                          className="btn btn-link p-0 text-decoration-none font-mono fw-bold text-success" 
+                          onClick={() => handleInvestigate(log.id)}
+                          style={{ fontSize: '13px' }}
+                        >
+                          {log.id || log.event_id}
+                        </button>
+                      </td>
                       <td className="fw-semibold text-white">{log.name || log.event_type}</td>
-                      <td className="font-mono text-info small">{log.source || log.source_ip}</td>
-                      <td className="text-secondary">{log.target || log.destination_ip}</td>
+                      <td>
+                        <span className={`badge ${predClass} small`}>
+                          {predictionLabel}
+                        </span>
+                      </td>
+                      <td className="font-mono text-white fw-bold">{log.confidence}%</td>
                       <td>
                         <span className={`badge badge-${(log.severity || 'LOW').toLowerCase()}`}>
                           {log.severity}
                         </span>
                       </td>
-                      <td>
-                        <span className={`badge ${badgeClass} small`}>
-                          {statusLabel}
-                        </span>
-                      </td>
+                      <td className="font-mono text-secondary small">{log.time || log.timestamp}</td>
                       <td>
                         {log.status !== 'RESOLVED' ? (
                           <>
@@ -716,7 +744,12 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
                     </div>
                   ) : (
                     activeThreats.map(threat => (
-                      <div key={threat.id} className="active-threat-item">
+                      <div 
+                        key={threat.id} 
+                        className="active-threat-item" 
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleInvestigate(threat.id || threat.event_id)}
+                      >
                         <div className="d-flex justify-content-between align-items-center mb-1">
                           <span className="small font-mono text-danger fw-bold">{threat.source || threat.source_ip}</span>
                           <span className={`badge badge-${(threat.severity || 'LOW').toLowerCase()} xsmall`}>
@@ -1061,37 +1094,37 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
         </div>
 
         <ul className="sidebar-menu">
-          <li className={`menu-item ${activePanel === 'Overview' ? 'active' : ''}`} onClick={() => setActivePanel('Overview')}>
+          <li className={`menu-item ${activePanel === 'Overview' ? 'active' : ''}`} onClick={() => { setActivePanel('Overview'); setInvestigatingEventId(null); }}>
             <a href="#overview" onClick={(e) => e.preventDefault()}>
               <LayoutDashboard size={18} />
               <span>Overview</span>
             </a>
           </li>
-          <li className={`menu-item ${activePanel === 'Security Events' ? 'active' : ''}`} onClick={() => setActivePanel('Security Events')}>
+          <li className={`menu-item ${activePanel === 'Security Events' ? 'active' : ''}`} onClick={() => { setActivePanel('Security Events'); setInvestigatingEventId(null); }}>
             <a href="#events" onClick={(e) => e.preventDefault()}>
               <Database size={18} />
               <span>Security Events</span>
             </a>
           </li>
-          <li className={`menu-item ${activePanel === 'Threat Intelligence' ? 'active' : ''}`} onClick={() => setActivePanel('Threat Intelligence')}>
+          <li className={`menu-item ${activePanel === 'Threat Intelligence' ? 'active' : ''}`} onClick={() => { setActivePanel('Threat Intelligence'); setInvestigatingEventId(null); }}>
             <a href="#intelligence" onClick={(e) => e.preventDefault()}>
               <Map size={18} />
               <span>Threat Intelligence</span>
             </a>
           </li>
-          <li className={`menu-item ${activePanel === 'Vulnerabilities' ? 'active' : ''}`} onClick={() => setActivePanel('Vulnerabilities')}>
+          <li className={`menu-item ${activePanel === 'Vulnerabilities' ? 'active' : ''}`} onClick={() => { setActivePanel('Vulnerabilities'); setInvestigatingEventId(null); }}>
             <a href="#vulnerabilities" onClick={(e) => e.preventDefault()}>
               <Shield size={18} />
               <span>Vulnerabilities</span>
             </a>
           </li>
-          <li className={`menu-item ${activePanel === 'Analytics' ? 'active' : ''}`} onClick={() => setActivePanel('Analytics')}>
+          <li className={`menu-item ${activePanel === 'Analytics' ? 'active' : ''}`} onClick={() => { setActivePanel('Analytics'); setInvestigatingEventId(null); }}>
             <a href="#analytics" onClick={(e) => e.preventDefault()}>
               <Activity size={18} />
               <span>Analytics</span>
             </a>
           </li>
-          <li className={`menu-item ${activePanel === 'Contact Us' ? 'active' : ''}`} onClick={() => setActivePanel('Contact Us')}>
+          <li className={`menu-item ${activePanel === 'Contact Us' ? 'active' : ''}`} onClick={() => { setActivePanel('Contact Us'); setInvestigatingEventId(null); }}>
             <a href="#contact" onClick={(e) => e.preventDefault()}>
               <UserCheck size={18} />
               <span>Contact Us</span>
@@ -1183,101 +1216,110 @@ export default function DashboardPage({ onNavigate, theme, toggleTheme }) {
           </div>
         </header>
 
-        {/* Conditional rendering of panels based on sidebar selection */}
-        {activePanel === 'Overview' && renderOverview()}
-        {activePanel === 'Security Events' && renderIncidents()}
-        {activePanel === 'Threat Intelligence' && renderThreatMap()}
-        {activePanel === 'Vulnerabilities' && renderShieldScans()}
-        {activePanel === 'Contact Us' && renderContactUs()}
-        {activePanel === 'Analytics' && (
+        {/* Conditional rendering of panels based on sidebar selection or drilldown */}
+        {investigatingEventId ? (
+          <EventDetails 
+            event={events.find(e => (e.id || e.event_id) === investigatingEventId)} 
+            onClose={() => setInvestigatingEventId(null)} 
+          />
+        ) : (
           <>
-            {/* Shared Search and Filters toolbar for Analytics engine */}
-            <div className="logs-header mb-4 p-3 rounded" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div className="d-flex align-items-center gap-3">
-                  <h3 className="logs-title text-white m-0" style={{ fontSize: '16px' }}>Interactive Engine Filters</h3>
-                  <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 rounded-pill small fw-medium">
-                    {filteredEvents.length} Logs Active
-                  </span>
+            {activePanel === 'Overview' && renderOverview()}
+            {activePanel === 'Security Events' && renderIncidents()}
+            {activePanel === 'Threat Intelligence' && renderThreatMap()}
+            {activePanel === 'Vulnerabilities' && renderShieldScans()}
+            {activePanel === 'Contact Us' && renderContactUs()}
+            {activePanel === 'Analytics' && (
+              <>
+                {/* Shared Search and Filters toolbar for Analytics engine */}
+                <div className="logs-header mb-4 p-3 rounded" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div className="d-flex align-items-center gap-3">
+                      <h3 className="logs-title text-white m-0" style={{ fontSize: '16px' }}>Interactive Engine Filters</h3>
+                      <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 rounded-pill small fw-medium">
+                        {filteredEvents.length} Logs Active
+                      </span>
+                    </div>
+                    
+                    <div className="logs-toolbar d-flex flex-wrap align-items-center gap-3 m-0">
+                      <div className="search-bar">
+                        <Search size={16} />
+                        <input 
+                          type="text" 
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search vector, host, IP..." 
+                        />
+                      </div>
+
+                      <div className="dropdown-filters d-flex gap-2">
+                        <select 
+                          value={eventTypeFilter}
+                          onChange={(e) => setEventTypeFilter(e.target.value)}
+                          className="filter-select"
+                          title="Event Type"
+                        >
+                          <option value="ALL">All Event Types</option>
+                          {uniqueEventTypes.filter(t => t !== 'ALL').map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+
+                        <select 
+                          value={ipFilter}
+                          onChange={(e) => setIpFilter(e.target.value)}
+                          className="filter-select"
+                          title="Source IP"
+                        >
+                          <option value="ALL">All Source IPs</option>
+                          {uniqueSourceIps.filter(ip => ip !== 'ALL').map(ip => (
+                            <option key={ip} value={ip}>{ip}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="table-controls">
+                        <button 
+                          className={`log-filter-btn ${severityFilter === 'ALL' ? 'active' : ''}`}
+                          onClick={() => setSeverityFilter('ALL')}
+                        >
+                          All
+                        </button>
+                        <button 
+                          className={`log-filter-btn ${severityFilter === 'CRITICAL' ? 'active' : ''}`}
+                          onClick={() => setSeverityFilter('CRITICAL')}
+                        >
+                          Critical
+                        </button>
+                        <button 
+                          className={`log-filter-btn ${severityFilter === 'WARNING' ? 'active' : ''}`}
+                          onClick={() => setSeverityFilter('WARNING')}
+                        >
+                          Warning
+                        </button>
+                        <button 
+                          className={`log-filter-btn ${severityFilter === 'RESOLVED' ? 'active' : ''}`}
+                          onClick={() => setSeverityFilter('RESOLVED')}
+                        >
+                          Resolved
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="logs-toolbar d-flex flex-wrap align-items-center gap-3 m-0">
-                  <div className="search-bar">
-                    <Search size={16} />
-                    <input 
-                      type="text" 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search vector, host, IP..." 
-                    />
-                  </div>
 
-                  <div className="dropdown-filters d-flex gap-2">
-                    <select 
-                      value={eventTypeFilter}
-                      onChange={(e) => setEventTypeFilter(e.target.value)}
-                      className="filter-select"
-                      title="Event Type"
-                    >
-                      <option value="ALL">All Event Types</option>
-                      {uniqueEventTypes.filter(t => t !== 'ALL').map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-
-                    <select 
-                      value={ipFilter}
-                      onChange={(e) => setIpFilter(e.target.value)}
-                      className="filter-select"
-                      title="Source IP"
-                    >
-                      <option value="ALL">All Source IPs</option>
-                      {uniqueSourceIps.filter(ip => ip !== 'ALL').map(ip => (
-                        <option key={ip} value={ip}>{ip}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="table-controls">
-                    <button 
-                      className={`log-filter-btn ${severityFilter === 'ALL' ? 'active' : ''}`}
-                      onClick={() => setSeverityFilter('ALL')}
-                    >
-                      All
-                    </button>
-                    <button 
-                      className={`log-filter-btn ${severityFilter === 'CRITICAL' ? 'active' : ''}`}
-                      onClick={() => setSeverityFilter('CRITICAL')}
-                    >
-                      Critical
-                    </button>
-                    <button 
-                      className={`log-filter-btn ${severityFilter === 'WARNING' ? 'active' : ''}`}
-                      onClick={() => setSeverityFilter('WARNING')}
-                    >
-                      Warning
-                    </button>
-                    <button 
-                      className={`log-filter-btn ${severityFilter === 'RESOLVED' ? 'active' : ''}`}
-                      onClick={() => setSeverityFilter('RESOLVED')}
-                    >
-                      Resolved
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <section className="dashboard-charts-wrapper">
-              <DashboardCharts 
-                events={filteredEvents} 
-                theme={theme} 
-                searchQuery={searchQuery}
-                eventTypeFilter={eventTypeFilter}
-                ipFilter={ipFilter}
-                severityFilter={severityFilter}
-              />
-            </section>
+                <section className="dashboard-charts-wrapper">
+                  <DashboardCharts 
+                    events={filteredEvents} 
+                    theme={theme} 
+                    searchQuery={searchQuery}
+                    eventTypeFilter={eventTypeFilter}
+                    ipFilter={ipFilter}
+                    severityFilter={severityFilter}
+                  />
+                </section>
+              </>
+            )}
           </>
         )}
       </main>
