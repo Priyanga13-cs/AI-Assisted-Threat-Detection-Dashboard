@@ -113,25 +113,37 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
 
   // Handle CSV Export
   const handleCSVExport = () => {
+    if (filteredEvents.length === 0) return;
+
     const headers = ['Event ID', 'Event Type', 'Prediction', 'Confidence', 'Severity', 'Timestamp', 'Source IP', 'Destination IP'];
     const rows = filteredEvents.map(e => [
-      e.id || e.event_id,
-      e.name || e.event_type,
-      e.prediction,
-      `${e.confidence}%`,
-      e.severity,
-      e.time || e.timestamp,
-      e.source || e.source_ip,
-      e.target || e.destination_ip
+      e.id || e.event_id || '',
+      e.name || e.event_type || '',
+      e.prediction || '',
+      `${e.confidence || 0}%`,
+      e.severity || '',
+      e.time || e.timestamp || '',
+      e.source || e.source_ip || '',
+      e.target || e.destination_ip || ''
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = [
+      headers.join(','), 
+      ...rows.map(r => r.map(val => {
+        let str = String(val);
+        if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+          str = str.replace(/"/g, '""');
+          return `"${str}"`;
+        }
+        return `"${str}"`;
+      }).join(','))
+    ].join('\n');
     
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `soc_threat_detection_export_${Date.now()}.csv`);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `security_threat_logs_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

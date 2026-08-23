@@ -1,26 +1,35 @@
 /* Dashboard Layout & Page Styles matching Test-Frontend/dashboard.html */
+/* Design System: Consistent with Landing/Auth Pages */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-deep: #030708;
-    --bg-surface: #0a0f12;
-    --bg-sidebar: #050a0c;
-    --border-color: rgba(16, 185, 129, 0.1);
-    --border-hover: rgba(16, 185, 129, 0.3);
-    --accent-mint: #10b981;
-    --accent-blue: #007cc3;
-    --text-primary: #ffffff;
-    --text-secondary: #8e9fa6;
-    --text-muted: #4b585c;
+    --bg-deep:       #020508;
+    --bg-surface:    #070f0e;
+    --bg-surface-2:  #0d1a18;
+    --bg-sidebar:    #040b0a;
+    --border-color:  rgba(16, 185, 129, 0.1);
+    --border-hover:  rgba(16, 185, 129, 0.35);
+    --accent-mint:   #10b981;
+    --accent-mint-b: #34d399;
+    --accent-blue:   #007cc3;
+    --text-primary:  #f1f5f9;
+    --text-secondary:#8e9fa6;
+    --text-muted:    #4a5568;
     
     --severity-critical: #ef4444;
-    --severity-warning: #f59e0b;
-    --severity-info: #3b82f6;
-    --severity-low: #10b981;
+    --severity-warning:  #f59e0b;
+    --severity-info:     #3b82f6;
+    --severity-low:      #10b981;
     
     --sidebar-width: 260px;
+    --radius-lg:     16px;
+    --radius-md:     10px;
+    --radius-sm:     6px;
+    --transition:    all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dashboard-body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-deep);
     color: var(--text-primary);
     min-height: 100vh;
@@ -29,6 +38,18 @@
     position: relative;
     width: 100vw;
     box-sizing: border-box;
+}
+
+/* Noise grain texture — consistent with auth pages */
+.dashboard-body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 256px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
 }
 
 /* Ambient Glow Behind Panels */
@@ -50,7 +71,7 @@
 /* Sidebar Styling */
 .dashboard-body .dashboard-sidebar {
     width: var(--sidebar-width);
-    background-color: var(--bg-sidebar);
+    background: linear-gradient(180deg, var(--bg-sidebar) 0%, #020a09 100%);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -58,6 +79,7 @@
     height: 100vh;
     z-index: 50;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
 }
 
 .dashboard-body .sidebar-brand {
@@ -302,17 +324,17 @@
 }
 
 .dashboard-body .kpi-card {
-    background-color: var(--bg-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--transition);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
 }
 
 .dashboard-body .kpi-card::before {
@@ -328,8 +350,8 @@
 
 .dashboard-body .kpi-card:hover {
     border-color: var(--border-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(16, 185, 129, 0.08);
 }
 
 /* Colors for KPI cards matching react component config */
@@ -385,15 +407,21 @@
 
 /* Charts Wrapper */
 .dashboard-body .chart-card {
-    background-color: var(--bg-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     height: 100%;
+    transition: var(--transition);
+}
+
+.dashboard-body .chart-card:hover {
+    border-color: rgba(16, 185, 129, 0.16);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35);
 }
 
 .dashboard-body .chart-card-header {
@@ -711,39 +739,77 @@
 
 /* Operator Actions */
 .dashboard-body .btn-table-action {
-    background: none;
-    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 12px;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dashboard-body .btn-investigate {
-    color: var(--accent-blue);
-    background-color: rgba(0, 124, 195, 0.06);
-    border: 1px solid rgba(0, 124, 195, 0.15);
-    margin-right: 6px;
+    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    margin-right: 8px;
 }
 
 .dashboard-body .btn-investigate:hover {
-    background-color: var(--accent-blue);
-    color: white;
+    background-color: #3b82f6;
+    color: #000000;
+    border-color: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.45);
 }
 
 .dashboard-body .btn-dismiss {
-    color: var(--text-secondary);
-    background-color: rgba(255, 255, 255, 0.03);
+    color: #94a3b8;
+    background-color: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .dashboard-body .btn-dismiss:hover {
-    background-color: var(--severity-critical);
-    color: white;
-    border-color: var(--severity-critical);
+    background-color: #10b981;
+    color: #000000;
+    border-color: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
 }
+
+.dashboard-body .badge-resolved-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace;
+    background-color: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #34d399;
+}
+
+/* Row-level left borders for severity indicator */
+.dashboard-body tr td:first-child {
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s ease;
+}
+.dashboard-body tr.severity-row-critical td:first-child {
+    border-left-color: var(--severity-critical);
+}
+.dashboard-body tr.severity-row-high td:first-child {
+    border-left-color: var(--severity-warning);
+}
+.dashboard-body tr.severity-row-medium td:first-child {
+    border-left-color: var(--severity-info);
+}
+.dashboard-body tr.severity-row-low td:first-child {
+    border-left-color: var(--severity-low);
+}
+
 
 /* Toasts in Dashboard */
 .dashboard-body .toast-container {
@@ -982,6 +1048,27 @@
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.04);
     overflow: hidden;
+}
+
+.map-continents path {
+    fill: rgba(255, 255, 255, 0.025);
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 1px;
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.map-grid-line {
+    stroke: rgba(255, 255, 255, 0.015);
+    transition: stroke 0.3s ease;
+}
+
+.light-theme .map-continents path {
+    fill: rgba(15, 23, 42, 0.06) !important;
+    stroke: rgba(15, 23, 42, 0.15) !important;
+}
+
+.light-theme .map-grid-line {
+    stroke: rgba(15, 23, 42, 0.05) !important;
 }
 
 .map-svg {
@@ -1732,5 +1819,248 @@ input[type="range"].accent-success {
 
 .light-theme .team-card:hover .member-github-link {
     border-top-color: rgba(16, 185, 129, 0.2);
+}
+
+
+/* ── Light Theme — Dashboard Global Overrides ──────────────────────────── */
+.light-theme .dashboard-body {
+    background-color: #f0f4f8;
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body::after {
+    display: none;
+}
+
+.light-theme .dashboard-body .dashboard-sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-right-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 4px 0 20px rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .sidebar-brand {
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .menu-item a {
+    color: #64748b;
+}
+
+.light-theme .dashboard-body .menu-item a:hover,
+.light-theme .dashboard-body .menu-item.active a {
+    color: #0f172a;
+    background-color: rgba(13, 148, 136, 0.07);
+}
+
+.light-theme .dashboard-body .menu-item.active a {
+    border-left-color: #0d9488;
+}
+
+.light-theme .dashboard-body .sidebar-profile {
+    border-top-color: rgba(15, 23, 42, 0.06);
+    background-color: rgba(15, 23, 42, 0.02);
+}
+
+.light-theme .dashboard-body .profile-name {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .profile-role {
+    color: #64748b;
+}
+
+.light-theme .dashboard-body .workspace-header {
+    border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+.light-theme .dashboard-body .header-title-section h2 {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .header-title-section p {
+    color: #64748b;
+}
+
+.light-theme .dashboard-body .live-clock {
+    background-color: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #475569;
+}
+
+.light-theme .dashboard-body .kpi-card {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .kpi-card:hover {
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(13, 148, 136, 0.12);
+}
+
+.light-theme .dashboard-body .kpi-title {
+    color: #64748b;
+}
+
+.light-theme .dashboard-body .kpi-value {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .kpi-display {
+    color: #64748b;
+}
+
+.light-theme .dashboard-body .chart-card {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .chart-card:hover {
+    border-color: rgba(13, 148, 136, 0.2);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+
+.light-theme .dashboard-body .chart-card-title {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .terminal-card {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+.light-theme .dashboard-body .terminal-feed {
+    background-color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+.light-theme .dashboard-body .control-card {
+    background-color: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+.light-theme .dashboard-body .logs-section {
+    background-color: #ffffff;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .logs-title {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .logs-header {
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dashboard-body .search-bar {
+    background-color: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.10);
+}
+
+.light-theme .dashboard-body .search-bar input {
+    color: #0f172a;
+}
+
+.light-theme .dashboard-body .search-bar input::placeholder {
+    color: #94a3b8;
+}
+
+/* ── Console / Terminal ─────────────────────────────────────────────────── */
+/* Console cursor blinking animation for terminal */
+.terminal-feed::after {
+    content: ' ▊';
+    color: #10b981;
+    animation: blink-cursor 1s step-end infinite;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+}
+
+@keyframes blink-cursor {
+    from, to { color: transparent; }
+    50%       { color: #10b981; }
+}
+
+/* ── KPI Card Colored Hover States ─────────────────────────────────────── */
+.dashboard-body .kpi-card.kpi-blue:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(59, 130, 246, 0.12) !important;
+}
+
+.dashboard-body .kpi-card.kpi-red:hover {
+    border-color: #ef4444 !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(239, 68, 68, 0.12) !important;
+}
+
+.dashboard-body .kpi-card.kpi-orange:hover {
+    border-color: #f59e0b !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(245, 158, 11, 0.12) !important;
+}
+
+.dashboard-body .kpi-card.kpi-purple:hover {
+    border-color: #a855f7 !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(168, 85, 247, 0.12) !important;
+}
+
+.dashboard-body .kpi-card.kpi-green:hover {
+    border-color: #10b981 !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(16, 185, 129, 0.12) !important;
+}
+
+/* ── Control Card Hover ─────────────────────────────────────────────────── */
+.control-card {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.control-card:hover {
+    border-color: var(--border-hover) !important;
+}
+
+/* ── Terminal Card Stretch ──────────────────────────────────────────────── */
+.terminal-card {
+    height: 100% !important;
+    min-height: 400px;
+}
+
+.terminal-feed {
+    height: 320px !important;
+}
+
+/* Light Theme Overrides for Operator Actions Table Buttons & Badges */
+.light-theme .dashboard-body .btn-investigate {
+    color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.06);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+.light-theme .dashboard-body .btn-investigate:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+}
+.light-theme .dashboard-body .btn-dismiss {
+    color: #475569;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+.light-theme .dashboard-body .btn-dismiss:hover {
+    background-color: #0d9488;
+    color: #ffffff;
+    border-color: #0d9488;
+    box-shadow: 0 0 10px rgba(13, 148, 136, 0.3);
+}
+.light-theme .dashboard-body .badge-resolved-status {
+    background-color: rgba(13, 148, 136, 0.08);
+    border-color: rgba(13, 148, 136, 0.25);
+    color: #0f766e;
+}
+.light-theme .dashboard-body tr td {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+.light-theme .dashboard-body th {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+.light-theme .dashboard-body tr:hover td {
+    background-color: rgba(0, 0, 0, 0.01);
 }
 

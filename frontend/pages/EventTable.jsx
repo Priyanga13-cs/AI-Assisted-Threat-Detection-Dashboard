@@ -211,20 +211,29 @@ export const EventTable = ({ data = securityData }) => {
             'Risk Score'
         ];
 
+        const escapeCSV = (val) => {
+            let str = String(val === undefined || val === null ? '' : val);
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                str = str.replace(/"/g, '""');
+                return `"${str}"`;
+            }
+            return `"${str}"`;
+        };
+
         const csvRows = [
             headers.join(','),
             ...sortedData.map((row) =>
                 [
-                    `"${row.event_id || ''}"`,
-                    `"${row.timestamp || ''}"`,
-                    `"${row.event_type || ''}"`,
-                    `"${row.severity || ''}"`,
-                    `"${row.source_ip || ''}"`,
-                    `"${row.destination_ip || ''}"`,
-                    `"${row.username || ''}"`,
-                    `"${row.asset_name || ''}"`,
-                    `"${row.event_status || ''}"`,
-                    `"${(Number(row.risk_score) || 0).toFixed(1)}"`
+                    escapeCSV(row.event_id),
+                    escapeCSV(row.timestamp),
+                    escapeCSV(row.event_type),
+                    escapeCSV(row.severity),
+                    escapeCSV(row.source_ip),
+                    escapeCSV(row.destination_ip),
+                    escapeCSV(row.username),
+                    escapeCSV(row.asset_name),
+                    escapeCSV(row.event_status),
+                    escapeCSV((Number(row.risk_score) || 0).toFixed(1))
                 ].join(',')
             )
         ];
