@@ -63,6 +63,7 @@ export default function SignupPage({ onNavigate, theme, toggleTheme }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           username: username.trim(),
           email: email.trim(),

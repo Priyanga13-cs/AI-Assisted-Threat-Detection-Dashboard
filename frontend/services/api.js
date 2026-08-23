@@ -213,14 +213,19 @@ export async function getEvents() {
   return await fetchLocalCSVFallback();
 }
 
-/**
- * Fetch statistics summary
- */
 export async function getStats() {
   try {
     const response = await axios.get(`${API_BASE_URL}/stats`);
     if (response.status === 200) {
-      return response.data;
+      const data = response.data;
+      return {
+        totalEvents: data.totalEvents || 0,
+        criticalThreats: data.criticalThreats || 0,
+        highRiskEvents: data.highRiskEvents || data.highSeverityAlerts || 0,
+        anomaliesDetected: data.anomaliesDetected || ((data.criticalThreats || 0) + (data.highSeverityAlerts || 0)) || 0,
+        normalEvents: data.normalEvents || ((data.totalEvents || 0) - ((data.criticalThreats || 0) + (data.highSeverityAlerts || 0))) || 0,
+        activeIncidents: data.activeIncidents || 0
+      };
     }
   } catch (e) {
     console.log('GET /stats API failed, falling back to local calculation...', e.message);

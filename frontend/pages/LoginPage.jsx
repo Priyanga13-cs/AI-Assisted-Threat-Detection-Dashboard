@@ -43,6 +43,7 @@ export default function LoginPage({ onNavigate, theme, toggleTheme }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ identity, password }),
       });
 
