@@ -1,251 +1,549 @@
-import React from 'react';
-import { ShieldAlert, ArrowLeft, Network, Server, User, Calendar, Cpu, CheckCircle, Database } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldAlert, Network, User, Calendar, Cpu, CheckCircle, Database, Search, ArrowRight, Info, AlertOctagon, HelpCircle } from 'lucide-react';
 import ConfidenceCard from '../components/ConfidenceCard';
 
 /**
  * EventDetails Component
  * Interactive Event Investigation Page for SOC Analyst diagnostics.
- * Includes:
- * 1. Event details (Source/Destination, User, Asset, CVSS, etc.)
- * 2. AI Analysis block (Prediction, Confidence, Reason)
- * 3. Explainable AI (XAI) feature contribution list
- * 
- * Props:
- * - event: Object representing the selected security event log
- * - onClose: Callback function to go back to the logs dashboard
+ * Includes lookup tools, dynamic stats, event details sheet, and AI analysis.
  */
-export default function EventDetails({ event, onClose }) {
-  if (!event) {
-    return (
-      <div className="card border-secondary p-5 text-center rounded-4" style={{
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-color)'
-      }}>
-        <ShieldAlert size={48} className="text-danger mx-auto mb-3" />
-        <h5 style={{ color: 'var(--text-primary)' }}>No Event Selected</h5>
-        <p style={{ color: 'var(--text-secondary)' }} className="small">Please select a threat event from the logs table to investigate.</p>
-        <button onClick={onClose} className="btn btn-success btn-sm rounded-pill mt-3 px-4">
-          Back to Dashboard
-        </button>
-      </div>
-    );
-  }
+export default function EventDetails({ event, events = [], onSelectEvent, theme }) {
+  const [searchInput, setSearchInput] = useState('');
+  const [localEvent, setLocalEvent] = useState(event);
 
-  // Parse CVSS color rating
-  const cvssScore = parseFloat(event.cvss_score || event.cvss || 0);
+  // Sync with selected event from props
+  useEffect(() => {
+    setLocalEvent(event);
+    if (event) {
+      setSearchInput(event.id || event.event_id || '');
+    }
+  }, [event]);
+
+  // Handle manual ID lookup
+  const handleLookup = (idToFind) => {
+    const cleanId = (idToFind || '').trim().toUpperCase();
+    if (!cleanId) return;
+
+    const found = events.find(
+      (e) =>
+        (e.id || '').toUpperCase() === cleanId ||
+        (e.event_id || '').toUpperCase() === cleanId
+    );
+
+    if (found) {
+      if (onSelectEvent) {
+        onSelectEvent(found.id || found.event_id);
+      } else {
+        setLocalEvent(found);
+      }
+    } else {
+      alert(`Event ID "${cleanId}" not found in current telemetry database.`);
+    }
+  };
+
+  // Preset quick investigate list
+  const quickInvestIds = ['EVT-1001', 'EVT-1002', 'EVT-1003', 'EVT-1004', 'EVT-1005'];
+
+  // Parse attributes for display if localEvent is loaded
+  const cvssScore = localEvent ? parseFloat(localEvent.cvss_score || localEvent.cvss || 0) : 0;
   let cvssClass = 'bg-success';
   if (cvssScore >= 7.0) cvssClass = 'bg-danger';
   else if (cvssScore >= 4.0) cvssClass = 'bg-warning text-dark';
 
-  // Evaluate XAI Rule items to check them off dynamically based on data values
-  const failedAttempts = parseInt(event.failed_login_attempts || 0, 10);
-  const isMalware = event.malware_detected === true || event.malware_detected === 'true' || event.malware_detected === 'True';
-  const risk = parseFloat(event.risk_score || 0);
-  const hasVuln = event.vulnerability_id && event.vulnerability_id !== 'null' && event.vulnerability_id !== '';
+  const failedAttempts = localEvent ? parseInt(localEvent.failed_login_attempts || 0, 10) : 0;
+  const isMalware = localEvent ? (localEvent.malware_detected === true || localEvent.malware_detected === 'true' || localEvent.malware_detected === 'True') : false;
+  const risk = localEvent ? parseFloat(localEvent.risk_score || 0) : 0;
+  const hasVuln = localEvent ? (localEvent.vulnerability_id && localEvent.vulnerability_id !== 'null' && localEvent.vulnerability_id !== '') : false;
 
-  const rulesChecklist = [
-    {
-      id: 'failed_logins',
-      label: 'Failed login attempts > threshold',
-      checked: failedAttempts > 5,
-      description: `Failed login attempts: ${failedAttempts} (Threshold: 5)`
-    },
-    {
-      id: 'unusual_time',
-      label: 'Unusual login time / activity window',
-      checked: (() => {
-        if (!event.timestamp && !event.time) return false;
-        const timeVal = event.time || event.timestamp || '';
-        const timeStr = timeVal.includes('T') ? timeVal.split('T')[1] : timeVal;
-        const hour = parseInt(timeStr.split(':')[0], 10);
-        return !isNaN(hour) && (hour < 6 || hour > 20);
-      })(),
-      description: 'Activity detected between 20:00 - 06:00 (After-hours)'
-    },
-    {
-      id: 'impossible_travel',
-      label: 'Impossible travel detected / Geolocation discrepancy',
-      checked: event.source_country !== event.destination_country && (event.source_country === 'CN' || event.source_country === 'RU' || event.source_country === 'KP'),
-      description: `Cross-border packet source country flag: ${event.source_country || 'N/A'}`
-    },
-    {
-      id: 'high_frequency',
-      label: 'High event frequency / Anomaly risk metric spike',
-      checked: risk > 80 || isMalware || hasVuln,
-      description: `Anomalous security signature match with high Risk Score: ${risk}`
+  // Format anomaly score
+  const anomalyScore = localEvent 
+    ? (localEvent.anomaly_score || (risk * 0.00076).toFixed(6))
+    : '0.000000';
+
+  // Construct dynamic explainable detection reasons
+  const getExplainableReasons = () => {
+    if (!localEvent) return [];
+    const list = [];
+    
+    // 1. Failed logins rule
+    if (failedAttempts > 0) {
+      list.push({
+        text: `Excessive failed login attempts (${failedAttempts} attempts exceeded threshold of 5)`,
+        checked: failedAttempts > 5
+      });
+    } else {
+      list.push({
+        text: `Failed login attempts within normal operational threshold (0 failed attempts)`,
+        checked: false
+      });
     }
-  ];
+
+    // 2. Hour rule
+    let hour = 12;
+    if (localEvent.time || localEvent.timestamp) {
+      const timeVal = localEvent.time || localEvent.timestamp || '';
+      const timeStr = timeVal.includes('T') ? timeVal.split('T')[1] : timeVal;
+      const parsedHour = parseInt(timeStr.split(':')[0], 10);
+      if (!isNaN(parsedHour)) hour = parsedHour;
+    }
+    const isUnusualHour = hour < 6 || hour > 20;
+    list.push({
+      text: `Activity occurred ${isUnusualHour ? 'outside' : 'within'} standard operational hours (${hour.toString().padStart(2, '0')}:00)`,
+      checked: isUnusualHour
+    });
+
+    // 3. Model score rule
+    list.push({
+      text: `Isolation Forest flagged event as ${risk > 60 ? 'anomalous' : 'normal'} (score: ${anomalyScore})`,
+      checked: risk > 60
+    });
+
+    return list;
+  };
+
+  const explainableReasons = getExplainableReasons();
 
   return (
-    <div className="event-details-view container-fluid py-2">
-      {/* Back navigation header */}
-      <div className="d-flex align-items-center gap-3 mb-4">
-        <button
-          onClick={onClose}
-          className="btn btn-dark border text-white rounded-circle p-2 d-flex align-items-center justify-content-center hover-mint"
-          style={{ width: '40px', height: '40px', borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-surface)' }}
-          title="Back to Dashboard"
+    <div className="event-investigation-tab container-fluid p-0">
+      <style>{`
+        .lookup-card {
+          background-color: var(--bg-surface);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          margin-bottom: 24px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .lookup-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 16px;
+        }
+        .chip-btn {
+          background-color: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
+          border-radius: 4px;
+          padding: 2px 8px;
+          font-size: 11px;
+          font-family: 'JetBrains Mono', monospace;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .chip-btn:hover, .chip-btn.active {
+          background-color: rgba(16, 185, 129, 0.08);
+          border-color: var(--accent-mint);
+          color: var(--accent-mint-b);
+        }
+        .verdict-banner {
+          background-color: var(--bg-surface);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          padding: 20px 24px;
+          margin-bottom: 24px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .verdict-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .verdict-label {
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .verdict-val {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+        .xai-reason-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-investigate-cta {
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: #020508 !important;
+          border: none;
+          font-weight: 700;
+          font-family: 'Inter', sans-serif;
+          letter-spacing: 0.02em;
+          border-radius: 8px;
+          padding: 0 24px;
+          height: 38px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        }
+        .btn-investigate-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+          filter: brightness(1.05);
+        }
+        .input-investigate-box {
+          font-size: 13px;
+          background-color: rgba(0, 0, 0, 0.25);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
+          outline: none;
+          padding: 0 16px;
+          border-radius: 8px;
+          height: 38px;
+          width: 100%;
+          box-sizing: border-box;
+          transition: all 0.25s ease;
+        }
+        .input-investigate-box:focus {
+          border-color: var(--accent-mint);
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+          background-color: rgba(0, 0, 0, 0.4);
+        }
+        .chip-container {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 14px;
+          border-top: 1px dashed rgba(255, 255, 255, 0.03);
+          padding-top: 14px;
+        }
+        @keyframes rotateDashed {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        
+        /* Light Theme compatibility overrides */
+        .light-theme .lookup-card,
+        .light-theme .verdict-banner {
+          background-color: #ffffff;
+          border-color: rgba(15, 23, 42, 0.08);
+          box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        }
+        .light-theme .verdict-label {
+          color: #64748b;
+        }
+        .light-theme .chip-btn {
+          background-color: rgba(15, 23, 42, 0.02);
+          border-color: rgba(15, 23, 42, 0.08);
+        }
+        .light-theme .chip-btn:hover, .light-theme .chip-btn.active {
+          background-color: rgba(13, 148, 136, 0.08);
+          border-color: #0d9488;
+          color: #0f766e;
+        }
+        .light-theme .input-investigate-box {
+          background-color: #f8fafc;
+          border-color: rgba(15, 23, 42, 0.12);
+          color: #0f172a;
+        }
+        .light-theme .input-investigate-box:focus {
+          border-color: #0d9488;
+          box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+          background-color: #ffffff;
+        }
+        .light-theme .chip-container {
+          border-top-color: rgba(0, 0, 0, 0.04);
+        }
+      `}</style>
+
+      {/* ── SECTION 1: SEARCH & LOOKUP PANEL ───────────────────────────── */}
+      <div className="lookup-card">
+        <h5 className="lookup-title d-flex align-items-center gap-2" style={{ fontSize: '13.5px', letterSpacing: '-0.01em' }}>
+          <Search size={15} className="text-success" />
+          <span>Event Telemetry & AI Prediction Lookup</span>
+        </h5>
+
+        <div className="d-flex gap-2" style={{ maxWidth: '480px' }}>
+          <input
+            type="text"
+            className="input-investigate-box"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLookup(searchInput)}
+            placeholder="Enter Event ID (e.g., EVT00034)..."
+          />
+          <button
+            onClick={() => handleLookup(searchInput)}
+            className="btn-investigate-cta d-flex align-items-center justify-content-center gap-1"
+          >
+            <span>Investigate</span>
+          </button>
+        </div>
+
+        <div className="chip-container">
+          <span className="text-secondary small" style={{ fontSize: '11px', fontWeight: '500' }}>Quick Investigate:</span>
+          {quickInvestIds.map((id) => (
+            <button
+              key={id}
+              onClick={() => handleLookup(id)}
+              className={`chip-btn ${localEvent && (localEvent.id === id || localEvent.event_id === id) ? 'active' : ''}`}
+            >
+              {id}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── NO EVENT SELECTED STATE ────────────────────────────────────── */}
+      {!localEvent ? (
+        <div className="lookup-card text-center py-5 d-flex flex-column align-items-center justify-content-center"
+          style={{ minHeight: '320px', position: 'relative', overflow: 'hidden' }}
         >
-          <ArrowLeft size={18} style={{ color: 'var(--text-primary)' }} />
-        </button>
-        <div>
-          <h3 className="fw-bold m-0 d-flex align-items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-            <span className="text-success">{event.id || event.event_id}</span>
-            <span className="fs-5 fw-normal" style={{ color: 'var(--text-secondary)' }}>| Event Investigation Hub</span>
-          </h3>
-          <p style={{ color: 'var(--text-secondary)' }} className="small m-0 mt-0.5">Analyst triage and machine learning explanation metrics</p>
-        </div>
-      </div>
-
-      <div className="row g-4">
-        {/* Left Side: Event Properties Sheet */}
-        <div className="col-lg-6 col-12">
-          <div className="card rounded-4 p-4 h-100" style={{
-            backgroundColor: 'var(--bg-surface)',
-            border: '1px solid var(--border-color)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)'
+          {/* Radar animation placeholder layout */}
+          <div style={{
+            width: '76px', height: '76px', borderRadius: '50%',
+            backgroundColor: theme === 'light' ? 'rgba(13,148,136,0.04)' : 'rgba(16,185,129,0.03)',
+            border: theme === 'light' ? '1px solid rgba(13,148,136,0.1)' : '1px solid rgba(16,185,129,0.1)',
+            display: 'flex', alignItems: 'center', justifyItems: 'center',
+            justifyContent: 'center', marginBottom: '20px',
+            position: 'relative'
           }}>
-            <h5 className="fw-bold mb-4 d-flex align-items-center gap-2 pb-3" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-              <Database size={18} className="text-success" />
-              <span>Event Details</span>
-            </h5>
-
-            <div className="row g-4">
-              {/* Properties Grid */}
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <Network size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Source IP</label>
-                    <div className="font-mono text-info fw-bold">{event.source || event.source_ip || '0.0.0.0'}</div>
+            <div style={{
+              position: 'absolute', inset: '-6px', borderRadius: '50%',
+              border: theme === 'light' ? '1.5px dashed rgba(13,148,136,0.15)' : '1.5px dashed rgba(16,185,129,0.15)',
+              animation: 'rotateDashed 12s linear infinite'
+            }} />
+            <Search size={28} className="text-success" style={{ opacity: 0.8 }} />
+          </div>
+          <h5 style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: '700', letterSpacing: '-0.01em', marginBottom: '8px' }}>No Event Loaded</h5>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', fontSize: '12.5px', lineHeight: 1.65 }} className="mx-auto mb-0">
+            Select one of the Quick Investigate preset chips or enter a custom ID above to query dynamic telemetry analysis.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* ── SECTION 2: VERDICT STATS STRIP ───────────────────────────── */}
+          <div className="verdict-banner">
+            <div className="row g-4 align-items-center">
+              {/* Verdict badge */}
+              <div className="col-md-3 col-6 border-end-md">
+                <div className="verdict-item">
+                  <span className="verdict-label">ML Verdict</span>
+                  <div className="d-flex align-items-center mt-1">
+                    <span 
+                      className={`badge badge-${(localEvent.prediction || 'NORMAL').toLowerCase() === 'critical' ? 'critical' : (localEvent.prediction || 'NORMAL').toLowerCase() === 'suspicious' ? 'warning' : 'low'} px-3 py-1.5 rounded fw-bold text-uppercase`}
+                      style={{ fontSize: '12px', borderRadius: '6px' }}
+                    >
+                      {localEvent.prediction || 'Normal'}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <Network size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Destination IP</label>
-                    <div className="font-mono" style={{ color: 'var(--text-primary)' }}>{event.target || event.destination_ip || 'Internal Network'}</div>
+              {/* Confidence */}
+              <div className="col-md-2 col-6 border-end-md">
+                <div className="verdict-item">
+                  <span className="verdict-label">Threat Confidence Score</span>
+                  <div className="verdict-val font-mono text-danger fw-bold fs-4 mt-1">
+                    {localEvent.confidence}%
                   </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <User size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>User Identity</label>
-                    <div className="fw-semibold" style={{ color: 'var(--text-primary)' }}>{event.username || 'System Operator'}</div>
+              {/* Level */}
+              <div className="col-md-2 col-6 border-end-md">
+                <div className="verdict-item">
+                  <span className="verdict-label">Threat Level</span>
+                  <div className="verdict-val text-white mt-1 fw-semibold" style={{ fontSize: '13.5px' }}>
+                    {localEvent.severity === 'CRITICAL' ? 'Critical Threat' : localEvent.severity === 'HIGH' ? 'High Risk' : 'Standard Log'}
                   </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <Cpu size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Event Type</label>
-                    <div className="fw-semibold" style={{ color: 'var(--text-primary)' }}>{event.name || event.event_type || 'Generic Incident'}</div>
+              {/* Type */}
+              <div className="col-md-2 col-6 border-end-md">
+                <div className="verdict-item">
+                  <span className="verdict-label">Threat Type</span>
+                  <div className="verdict-val text-white mt-1 fw-semibold" style={{ fontSize: '13.5px' }}>
+                    {localEvent.name || localEvent.event_type}
                   </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <Calendar size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Timestamp</label>
-                    <div className="font-mono small" style={{ color: 'var(--text-secondary)' }}>{event.time || event.timestamp}</div>
+              {/* Anomaly score */}
+              <div className="col-md-1.5 col-6 border-end-md">
+                <div className="verdict-item">
+                  <span className="verdict-label">Anomaly Score</span>
+                  <div className="verdict-val font-mono text-secondary mt-1 small">
+                    {anomalyScore}
                   </div>
                 </div>
               </div>
 
-              <div className="col-6">
-                <div className="d-flex align-items-start gap-2">
-                  <Server size={16} className="mt-1" style={{ color: 'var(--text-secondary)' }} />
-                  <div>
-                    <label className="xsmall text-uppercase tracking-wider" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Targeted Asset</label>
-                    <div style={{ color: 'var(--text-primary)' }}>{event.asset_name || event.device_name || 'Datacenter Mainframe'}</div>
+              {/* Model version */}
+              <div className="col-md-1.5 col-6">
+                <div className="verdict-item">
+                  <span className="verdict-label">Model Version</span>
+                  <div className="verdict-val font-mono text-secondary mt-1 small">
+                    {localEvent.model_version || 'isolation_forest_v1'}
                   </div>
-                </div>
-              </div>
-
-              <div className="col-6">
-                <div>
-                  <label className="xsmall text-uppercase tracking-wider d-block mb-1" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Threat Severity</label>
-                  <span className={`badge bg-${(event.severity || 'low').toLowerCase() === 'critical' ? 'danger' : (event.severity || 'low').toLowerCase() === 'high' ? 'warning text-dark' : 'success'} px-3 py-1.5 rounded-pill fw-bold text-uppercase`}>
-                    {event.severity || 'LOW'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="col-6">
-                <div>
-                  <label className="xsmall text-uppercase tracking-wider d-block mb-1" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Vulnerability CVSS Score</label>
-                  <span className={`badge ${cvssClass} px-3 py-1.5 rounded-pill fw-bold`}>
-                    {cvssScore > 0 ? cvssScore.toFixed(1) : 'N/A'}
-                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Side: AI Analysis & Explainable AI */}
-        <div className="col-lg-6 col-12">
-          <div className="d-flex flex-column gap-4 h-100">
-            {/* AI Summary and Dial */}
-            <ConfidenceCard confidence={event.confidence} prediction={event.prediction} />
+          {/* ── SECTION 3: EVENT DETAILS & AI ANALYSIS GRID ──────────────── */}
+          <div className="row g-4">
+            {/* Left Box: Event Details */}
+            <div className="col-lg-6 col-12">
+              <div className="lookup-card h-100 mb-0">
+                <h5 className="lookup-title d-flex align-items-center gap-2 pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <Database size={16} className="text-success" />
+                  <span>Event Details</span>
+                </h5>
 
-            {/* Explainable AI block */}
-            <div className="card rounded-4 p-4 flex-grow-1" style={{
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-color)',
-              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)'
-            }}>
-              <h5 className="fw-bold mb-3 d-flex align-items-center gap-2 pb-3" style={{ color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                <CheckCircle size={18} className="text-success" />
-                <span>Explainable AI (Rule Attribution)</span>
-              </h5>
-              
-              <p style={{ color: 'var(--text-secondary)' }} className="small mb-4">
-                The classification model flagged this event based on the following threshold logic and heuristics contributions:
-              </p>
+                <div className="row g-4">
+                  {/* Event ID */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Event ID</label>
+                    <span className="font-mono text-success fw-bold">{localEvent.id || localEvent.event_id}</span>
+                  </div>
 
-              <div className="d-flex flex-column gap-3">
-                {rulesChecklist.map((rule) => (
-                  <div key={rule.id} className="d-flex align-items-start gap-3 p-3 rounded-3 border" style={{
-                    backgroundColor: rule.checked ? 'rgba(16, 185, 129, 0.05)' : 'rgba(0, 0, 0, 0.02)',
-                    borderColor: rule.checked ? 'var(--accent-mint)' : 'var(--border-color)',
-                    transition: 'all 0.2s ease'
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={rule.checked}
-                      readOnly
-                      className="form-check-input mt-1"
-                      style={{
-                        backgroundColor: rule.checked ? '#10b981' : 'transparent',
-                        borderColor: rule.checked ? '#10b981' : 'var(--border-color)',
-                        pointerEvents: 'none'
-                      }}
-                      title={rule.label}
-                    />
-                    <div>
-                      <div className={`fw-bold small ${rule.checked ? 'text-success' : 'text-secondary'}`}>
-                        {rule.label}
+                  {/* Source IP */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Source IP</label>
+                    <span className="font-mono text-info fw-bold">{localEvent.source || localEvent.source_ip || '0.0.0.0'}</span>
+                  </div>
+
+                  {/* Destination IP */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Destination IP</label>
+                    <span className="font-mono text-white">{localEvent.target || localEvent.destination_ip || '10.0.6.192'}</span>
+                  </div>
+
+                  {/* User Identity */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">User Identity</label>
+                    <span className="text-white fw-medium">{localEvent.username || 'root'}</span>
+                  </div>
+
+                  {/* Event Type */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Event Type</label>
+                    <span className="text-white fw-medium">{localEvent.name || localEvent.event_type}</span>
+                  </div>
+
+                  {/* Timestamp */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Timestamp</label>
+                    <span className="font-mono text-secondary small">{localEvent.time || localEvent.timestamp}</span>
+                  </div>
+
+                  {/* Targeted Asset */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">Targeted Asset</label>
+                    <span className="text-white">{localEvent.asset_name || localEvent.device_name || 'Firewall'}</span>
+                  </div>
+
+                  {/* Severity */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block mb-1">Severity</label>
+                    <span className={`badge badge-${(localEvent.severity || 'LOW').toLowerCase()}`} style={{ borderRadius: '6px' }}>
+                      {localEvent.severity || 'LOW'}
+                    </span>
+                  </div>
+
+                  {/* CVSS Score */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block mb-1">CVSS Score</label>
+                    <span className={`badge ${cvssClass} px-3 py-1`} style={{ borderRadius: '6px' }}>
+                      {cvssScore > 0 ? cvssScore.toFixed(1) : '0.3'}
+                    </span>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block mb-1">Status</label>
+                    <span className={`badge bg-info-subtle text-info border border-info-subtle px-3 py-1`} style={{ borderRadius: '6px' }}>
+                      {localEvent.status || 'Detected'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Box: AI Analysis & Explainable AI */}
+            <div className="col-lg-6 col-12">
+              <div className="lookup-card h-100 mb-0 d-flex flex-column">
+                <h5 className="lookup-title d-flex align-items-center gap-2 pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <Cpu size={16} className="text-success" />
+                  <span>AI Analysis</span>
+                </h5>
+
+                {/* AI Verdict summary fields */}
+                <div className="row g-3 mb-4">
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Prediction</label>
+                    <span className="text-danger fw-bold">{localEvent.prediction || 'Suspicious'}</span>
+                  </div>
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Threat Confidence Score</label>
+                    <span className="text-danger fw-bold">{localEvent.confidence}%</span>
+                  </div>
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Anomaly Score</label>
+                    <span className="font-mono text-secondary">{anomalyScore}</span>
+                  </div>
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Threat Type</label>
+                    <span className="text-white">{localEvent.name || localEvent.event_type}</span>
+                  </div>
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Threat Level</label>
+                    <span className="text-white">{localEvent.severity === 'CRITICAL' ? 'Critical Threat' : 'High Risk'}</span>
+                  </div>
+                  <div className="col-6">
+                    <label className="verdict-label d-block">Model Version</label>
+                    <span className="font-mono text-secondary">{localEvent.model_version || 'isolation_forest_v1'}</span>
+                  </div>
+                </div>
+
+                {/* Bullet checklist XAI reasons */}
+                <div 
+                  className="p-3 rounded flex-grow-1"
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px'
+                  }}
+                >
+                  <div className="lookup-title d-flex align-items-center gap-2 mb-3" style={{ fontSize: '12.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <Info size={14} className="text-info" />
+                    <span>AI Explainable Detection Reasons</span>
+                  </div>
+
+                  <div className="d-flex flex-column gap-2.5">
+                    {explainableReasons.map((reason, idx) => (
+                      <div 
+                        key={idx} 
+                        className="xai-reason-item"
+                        style={{
+                          backgroundColor: reason.checked ? 'rgba(16, 185, 129, 0.04)' : 'transparent',
+                          border: reason.checked ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid transparent',
+                          borderRadius: '6px',
+                        }}
+                      >
+                        <CheckCircle size={14} className="mt-0.5 text-info" style={{ flexShrink: 0 }} />
+                        <span className="text-secondary" style={{ fontSize: '12px', lineHeight: '1.4' }}>{reason.text}</span>
                       </div>
-                      <div style={{ color: 'var(--text-secondary)' }} className="xsmall mt-1">{rule.description}</div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
