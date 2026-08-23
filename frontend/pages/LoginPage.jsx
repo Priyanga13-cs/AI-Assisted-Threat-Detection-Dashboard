@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, ShieldAlert, CheckCircle, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Eye, EyeOff, ShieldAlert, CheckCircle, ArrowRight, Sun, Moon, Lock } from 'lucide-react';
 import '../styles/LoginPage.css';
 
 export default function LoginPage({ onNavigate, theme, toggleTheme }) {
@@ -110,6 +110,9 @@ export default function LoginPage({ onNavigate, theme, toggleTheme }) {
         {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
+      {/* Grid Background */}
+      <div className="auth-grid-bg" />
+
       {/* Ambient Glowing Background Blobs */}
       <div className="ambient-glow glow-1"></div>
       <div className="ambient-glow glow-2"></div>
@@ -140,6 +143,7 @@ export default function LoginPage({ onNavigate, theme, toggleTheme }) {
         <div className="glass-card">
           {/* Header */}
           <div className="brand">
+            <div className="brand-icon">I</div>
             <span className="brand-infosys">Infosys</span>
             <span className="brand-dot"></span>
             <span>Security</span>
@@ -228,6 +232,12 @@ export default function LoginPage({ onNavigate, theme, toggleTheme }) {
               Create Account
             </button>
           </footer>
+
+          {/* Security Notice */}
+          <div className="security-notice">
+            <Lock size={10} />
+            256-bit encrypted • SOC 2 compliant
+          </div>
         </div>
       </main>
     </div>
