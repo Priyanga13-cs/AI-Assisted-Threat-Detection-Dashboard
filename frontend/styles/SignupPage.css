@@ -1,5 +1,6 @@
 /* ==========================================================================
    INFOSYS THREAT DETECTION — SIGNUP: PASSWORD STRENGTH METER
+   Design System: Original Dark Cyber Glassmorphism
    ========================================================================== */
 
 /* ── Strength Meter Container ────────────────────────────────────────────── */
@@ -7,7 +8,7 @@
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ── Bars Track ──────────────────────────────────────────────────────────── */
@@ -21,13 +22,8 @@
   height: 4px;
   flex-grow: 1;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  transition: background-color 0.35s ease, transform 0.2s ease;
-}
-
-/* Bar fills */
-.strength-bar.filled {
-  transform: scaleY(1.5);
+  background: rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease;
 }
 
 /* ── Strength Label ───────────────────────────────────────────────────────── */
@@ -37,73 +33,4 @@
   justify-content: space-between;
   font-size: 11px;
   color: #8e9fa6;
-  letter-spacing: 0.03em;
-}
-
-.strength-text span {
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-size: 10px;
-}
-
-/* ── Requirements List ───────────────────────────────────────────────────── */
-.strength-requirements {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 4px;
-}
-
-.strength-req {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
-  color: #4a5568;
-  transition: color 0.2s ease;
-}
-
-.strength-req.met {
-  color: #10b981;
-}
-
-.strength-req-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #4a5568;
-  flex-shrink: 0;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.strength-req.met .strength-req-dot {
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
-}
-
-/* Light theme overrides */
-.light-theme .strength-bar {
-  background: rgba(15, 23, 42, 0.08);
-}
-
-.light-theme .strength-text {
-  color: #64748b;
-}
-
-.light-theme .strength-req {
-  color: #94a3b8;
-}
-
-.light-theme .strength-req.met {
-  color: #0d9488;
-}
-
-.light-theme .strength-req-dot {
-  background: #94a3b8;
-}
-
-.light-theme .strength-req.met .strength-req-dot {
-  background: #0d9488;
-  box-shadow: 0 0 6px rgba(13, 148, 136, 0.4);
 }
