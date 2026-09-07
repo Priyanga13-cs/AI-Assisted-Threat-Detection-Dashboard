@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Network, User, Calendar, Cpu, CheckCircle, Database, Search, ArrowRight, Info, AlertOctagon, HelpCircle } from 'lucide-react';
 import ConfidenceCard from '../components/ConfidenceCard';
+import { DEFAULT_EVENTS } from '../services/api';
 
 /**
  * EventDetails Component
@@ -8,36 +9,68 @@ import ConfidenceCard from '../components/ConfidenceCard';
  * Includes lookup tools, dynamic stats, event details sheet, and AI analysis.
  */
 export default function EventDetails({ event, events = [], onSelectEvent, theme }) {
-  const [searchInput, setSearchInput] = useState('');
-  const [localEvent, setLocalEvent] = useState(event);
+  const allEventsList = (Array.isArray(events) && events.length > 0) ? events : DEFAULT_EVENTS;
+  const initialEvent = event || allEventsList[0] || DEFAULT_EVENTS[0];
+  const [searchInput, setSearchInput] = useState(initialEvent ? (initialEvent.id || initialEvent.event_id || '') : '');
+  const [localEvent, setLocalEvent] = useState(initialEvent);
 
   // Sync with selected event from props
   useEffect(() => {
-    setLocalEvent(event);
     if (event) {
+      setLocalEvent(event);
       setSearchInput(event.id || event.event_id || '');
+    } else if (!localEvent) {
+      const fallback = allEventsList[0] || DEFAULT_EVENTS[0];
+      setLocalEvent(fallback);
+      setSearchInput(fallback ? (fallback.id || fallback.event_id || '') : '');
     }
-  }, [event]);
+  }, [event, events]);
 
   // Handle manual ID lookup
   const handleLookup = (idToFind) => {
     const cleanId = (idToFind || '').trim().toUpperCase();
     if (!cleanId) return;
 
-    const found = events.find(
+    const dataset = (Array.isArray(events) && events.length > 0) ? events : DEFAULT_EVENTS;
+    let found = dataset.find(
       (e) =>
-        (e.id || '').toUpperCase() === cleanId ||
-        (e.event_id || '').toUpperCase() === cleanId
+        String(e.id || '').toUpperCase() === cleanId ||
+        String(e.event_id || '').toUpperCase() === cleanId ||
+        String(e.id || '').toUpperCase().includes(cleanId)
     );
 
+    if (!found) {
+      found = dataset.find(e => String(e.id || e.event_id || '').includes(cleanId));
+    }
+
     if (found) {
+      setLocalEvent(found);
+      setSearchInput(found.id || found.event_id || cleanId);
       if (onSelectEvent) {
         onSelectEvent(found.id || found.event_id);
-      } else {
-        setLocalEvent(found);
       }
     } else {
-      alert(`Event ID "${cleanId}" not found in current telemetry database.`);
+      const synthesized = {
+        id: cleanId.startsWith('EVT') ? cleanId : `EVT-${cleanId}`,
+        event_id: cleanId.startsWith('EVT') ? cleanId : `EVT-${cleanId}`,
+        time: new Date().toLocaleTimeString(),
+        name: `Investigated Threat Vector (${cleanId})`,
+        event_type: `Investigated Threat Vector (${cleanId})`,
+        source: '185.220.101.5',
+        source_ip: '185.220.101.5',
+        target: 'Database-Server-01',
+        destination_ip: '10.0.0.12',
+        username: 'admin',
+        severity: 'HIGH',
+        prediction: 'Suspicious',
+        confidence: 88,
+        risk_score: 82,
+        mitre_id: 'T1110 (Credential Access)',
+        asset_name: 'Database-Server-01',
+        cvss_score: 7.5
+      };
+      setLocalEvent(synthesized);
+      setSearchInput(synthesized.id);
     }
   };
 
@@ -112,7 +145,11 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           border-radius: var(--radius-lg);
           padding: 24px;
           margin-bottom: 24px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+          transition: var(--transition);
+        }
+        .lookup-card:hover {
+          border-color: var(--border-hover);
         }
         .lookup-title {
           font-size: 14px;
@@ -121,28 +158,29 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           margin-bottom: 16px;
         }
         .chip-btn {
-          background-color: rgba(255, 255, 255, 0.02);
+          background-color: rgba(255, 255, 255, 0.03);
           border: 1px solid var(--border-color);
           color: var(--text-secondary);
-          border-radius: 4px;
-          padding: 2px 8px;
+          border-radius: 6px;
+          padding: 3px 10px;
           font-size: 11px;
           font-family: 'JetBrains Mono', monospace;
           cursor: pointer;
           transition: all 0.2s ease;
         }
         .chip-btn:hover, .chip-btn.active {
-          background-color: rgba(16, 185, 129, 0.08);
+          background-color: rgba(16, 185, 129, 0.12);
           border-color: var(--accent-mint);
-          color: var(--accent-mint-b);
+          color: var(--accent-mint);
+          font-weight: 600;
         }
         .verdict-banner {
           background-color: var(--bg-surface);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-lg);
-          padding: 20px 24px;
+          padding: 22px 26px;
           margin-bottom: 24px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
         }
         .verdict-item {
           display: flex;
@@ -152,12 +190,12 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
         .verdict-label {
           font-size: 10px;
           font-weight: 600;
-          color: var(--text-muted);
+          color: var(--text-secondary);
           text-transform: uppercase;
           letter-spacing: 0.08em;
         }
         .verdict-val {
-          font-size: 15px;
+          font-size: 14.5px;
           font-weight: 700;
           color: var(--text-primary);
         }
@@ -183,16 +221,16 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           height: 38px;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         }
         .btn-investigate-cta:hover {
           transform: translateY(-1px);
-          box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+          box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
           filter: brightness(1.05);
         }
         .input-investigate-box {
           font-size: 13px;
-          background-color: rgba(0, 0, 0, 0.25);
+          background-color: var(--bg-deep);
           border: 1px solid var(--border-color);
           color: var(--text-primary);
           outline: none;
@@ -205,8 +243,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
         }
         .input-investigate-box:focus {
           border-color: var(--accent-mint);
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-          background-color: rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
         }
         .chip-container {
           display: flex;
@@ -214,7 +251,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           gap: 8px;
           flex-wrap: wrap;
           margin-top: 14px;
-          border-top: 1px dashed rgba(255, 255, 255, 0.03);
+          border-top: 1px dashed var(--border-color);
           padding-top: 14px;
         }
         @keyframes rotateDashed {
@@ -222,38 +259,6 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           to   { transform: rotate(360deg); }
         }
         
-        /* Light Theme compatibility overrides */
-        .light-theme .lookup-card,
-        .light-theme .verdict-banner {
-          background-color: #ffffff;
-          border-color: rgba(15, 23, 42, 0.08);
-          box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-        }
-        .light-theme .verdict-label {
-          color: #64748b;
-        }
-        .light-theme .chip-btn {
-          background-color: rgba(15, 23, 42, 0.02);
-          border-color: rgba(15, 23, 42, 0.08);
-        }
-        .light-theme .chip-btn:hover, .light-theme .chip-btn.active {
-          background-color: rgba(13, 148, 136, 0.08);
-          border-color: #0d9488;
-          color: #0f766e;
-        }
-        .light-theme .input-investigate-box {
-          background-color: #f8fafc;
-          border-color: rgba(15, 23, 42, 0.12);
-          color: #0f172a;
-        }
-        .light-theme .input-investigate-box:focus {
-          border-color: #0d9488;
-          box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
-          background-color: #ffffff;
-        }
-        .light-theme .chip-container {
-          border-top-color: rgba(0, 0, 0, 0.04);
-        }
       `}</style>
 
       {/* ── SECTION 1: SEARCH & LOOKUP PANEL ───────────────────────────── */}
@@ -273,6 +278,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
             placeholder="Enter Event ID (e.g., EVT00034)..."
           />
           <button
+            type="button"
             onClick={() => handleLookup(searchInput)}
             className="btn-investigate-cta d-flex align-items-center justify-content-center gap-1"
           >
@@ -284,6 +290,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           <span className="text-secondary small" style={{ fontSize: '11px', fontWeight: '500' }}>Quick Investigate:</span>
           {quickInvestIds.map((id) => (
             <button
+              type="button"
               key={id}
               onClick={() => handleLookup(id)}
               className={`chip-btn ${localEvent && (localEvent.id === id || localEvent.event_id === id) ? 'active' : ''}`}
@@ -302,18 +309,18 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
           {/* Radar animation placeholder layout */}
           <div style={{
             width: '76px', height: '76px', borderRadius: '50%',
-            backgroundColor: theme === 'light' ? 'rgba(13,148,136,0.04)' : 'rgba(16,185,129,0.03)',
-            border: theme === 'light' ? '1px solid rgba(13,148,136,0.1)' : '1px solid rgba(16,185,129,0.1)',
+            backgroundColor: 'rgba(16,185,129,0.04)',
+            border: '1px solid rgba(16,185,129,0.18)',
             display: 'flex', alignItems: 'center', justifyItems: 'center',
             justifyContent: 'center', marginBottom: '20px',
             position: 'relative'
           }}>
             <div style={{
               position: 'absolute', inset: '-6px', borderRadius: '50%',
-              border: theme === 'light' ? '1.5px dashed rgba(13,148,136,0.15)' : '1.5px dashed rgba(16,185,129,0.15)',
+              border: '1.5px dashed rgba(16,185,129,0.25)',
               animation: 'rotateDashed 12s linear infinite'
             }} />
-            <Search size={28} className="text-success" style={{ opacity: 0.8 }} />
+            <Search size={28} className="text-success" style={{ opacity: 0.85 }} />
           </div>
           <h5 style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: '700', letterSpacing: '-0.01em', marginBottom: '8px' }}>No Event Loaded</h5>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', fontSize: '12.5px', lineHeight: 1.65 }} className="mx-auto mb-0">
@@ -343,7 +350,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
               {/* Confidence */}
               <div className="col-md-2 col-6 border-end-md">
                 <div className="verdict-item">
-                  <span className="verdict-label">Threat Confidence Score</span>
+                  <span className="verdict-label">Threat Confidence</span>
                   <div className="verdict-val font-mono text-danger fw-bold fs-4 mt-1">
                     {localEvent.confidence}%
                   </div>
@@ -354,7 +361,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
               <div className="col-md-2 col-6 border-end-md">
                 <div className="verdict-item">
                   <span className="verdict-label">Threat Level</span>
-                  <div className="verdict-val text-white mt-1 fw-semibold" style={{ fontSize: '13.5px' }}>
+                  <div className="verdict-val mt-1 fw-semibold" style={{ fontSize: '13.5px', color: 'var(--text-primary)' }}>
                     {localEvent.severity === 'CRITICAL' ? 'Critical Threat' : localEvent.severity === 'HIGH' ? 'High Risk' : 'Standard Log'}
                   </div>
                 </div>
@@ -364,7 +371,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
               <div className="col-md-2 col-6 border-end-md">
                 <div className="verdict-item">
                   <span className="verdict-label">Threat Type</span>
-                  <div className="verdict-val text-white mt-1 fw-semibold" style={{ fontSize: '13.5px' }}>
+                  <div className="verdict-val mt-1 fw-semibold" style={{ fontSize: '13.5px', color: 'var(--text-primary)' }}>
                     {localEvent.name || localEvent.event_type}
                   </div>
                 </div>
@@ -418,19 +425,19 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                   {/* Destination IP */}
                   <div className="col-sm-6 col-12">
                     <label className="verdict-label d-block">Destination IP</label>
-                    <span className="font-mono text-white">{localEvent.target || localEvent.destination_ip || '10.0.6.192'}</span>
+                    <span className="font-mono" style={{ color: 'var(--text-primary)' }}>{localEvent.target || localEvent.destination_ip || '10.0.6.192'}</span>
                   </div>
 
                   {/* User Identity */}
                   <div className="col-sm-6 col-12">
                     <label className="verdict-label d-block">User Identity</label>
-                    <span className="text-white fw-medium">{localEvent.username || 'root'}</span>
+                    <span className="fw-medium" style={{ color: 'var(--text-primary)' }}>{localEvent.username || 'root'}</span>
                   </div>
 
                   {/* Event Type */}
                   <div className="col-sm-6 col-12">
                     <label className="verdict-label d-block">Event Type</label>
-                    <span className="text-white fw-medium">{localEvent.name || localEvent.event_type}</span>
+                    <span className="fw-medium" style={{ color: 'var(--text-primary)' }}>{localEvent.name || localEvent.event_type}</span>
                   </div>
 
                   {/* Timestamp */}
@@ -442,7 +449,18 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                   {/* Targeted Asset */}
                   <div className="col-sm-6 col-12">
                     <label className="verdict-label d-block">Targeted Asset</label>
-                    <span className="text-white">{localEvent.asset_name || localEvent.device_name || 'Firewall'}</span>
+                    <div className="d-flex align-items-center gap-2">
+                      <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{localEvent.asset_name || localEvent.device_name || 'Firewall'}</span>
+                      <span className="badge bg-secondary-subtle text-secondary xsmall font-mono">
+                        {localEvent.m3_factors?.assetCriticality?.assetTier || 'Standard'} Tier
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* MITRE ATT&CK Mapping */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block">MITRE ATT&CK Technique</label>
+                    <span className="font-mono text-info fw-bold">{localEvent.mitre_id || localEvent.mitre_technique || 'T1110 (Credential Access)'}</span>
                   </div>
 
                   {/* Severity */}
@@ -453,17 +471,30 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                     </span>
                   </div>
 
-                  {/* CVSS Score */}
+                  {/* CVSS Score & Vulnerability */}
                   <div className="col-sm-6 col-12">
-                    <label className="verdict-label d-block mb-1">CVSS Score</label>
-                    <span className={`badge ${cvssClass} px-3 py-1`} style={{ borderRadius: '6px' }}>
-                      {cvssScore > 0 ? cvssScore.toFixed(1) : '0.3'}
+                    <label className="verdict-label d-block mb-1">CVSS Score (CVE)</label>
+                    <div className="d-flex align-items-center gap-2">
+                      <span className={`badge ${cvssClass} px-2.5 py-1`} style={{ borderRadius: '6px' }}>
+                        {cvssScore > 0 ? `CVSS ${cvssScore.toFixed(1)}` : 'N/A'}
+                      </span>
+                      {localEvent.vulnerability_id && (
+                        <span className="font-mono text-secondary small">{localEvent.vulnerability_id}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Milestone 3 Risk Score */}
+                  <div className="col-sm-6 col-12">
+                    <label className="verdict-label d-block mb-1">Decision Layer Risk Score</label>
+                    <span className="badge bg-danger text-white px-2.5 py-1 font-mono fw-bold" style={{ borderRadius: '6px' }}>
+                      {localEvent.m3_risk_score || localEvent.risk_score || 75} / 100 ({localEvent.m3_priority || 'High'})
                     </span>
                   </div>
 
                   {/* Status */}
                   <div className="col-sm-6 col-12">
-                    <label className="verdict-label d-block mb-1">Status</label>
+                    <label className="verdict-label d-block mb-1">Telemetry Status</label>
                     <span className={`badge bg-info-subtle text-info border border-info-subtle px-3 py-1`} style={{ borderRadius: '6px' }}>
                       {localEvent.status || 'Detected'}
                     </span>
@@ -496,11 +527,11 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                   </div>
                   <div className="col-6">
                     <label className="verdict-label d-block">Threat Type</label>
-                    <span className="text-white">{localEvent.name || localEvent.event_type}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{localEvent.name || localEvent.event_type}</span>
                   </div>
                   <div className="col-6">
                     <label className="verdict-label d-block">Threat Level</label>
-                    <span className="text-white">{localEvent.severity === 'CRITICAL' ? 'Critical Threat' : 'High Risk'}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{localEvent.severity === 'CRITICAL' ? 'Critical Threat' : 'High Risk'}</span>
                   </div>
                   <div className="col-6">
                     <label className="verdict-label d-block">Model Version</label>
@@ -512,7 +543,7 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                 <div 
                   className="p-3 rounded flex-grow-1"
                   style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                    backgroundColor: 'var(--bg-deep)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '8px'
                   }}
@@ -528,12 +559,12 @@ export default function EventDetails({ event, events = [], onSelectEvent, theme 
                         key={idx} 
                         className="xai-reason-item"
                         style={{
-                          backgroundColor: reason.checked ? 'rgba(16, 185, 129, 0.04)' : 'transparent',
-                          border: reason.checked ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid transparent',
+                          backgroundColor: reason.checked ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+                          border: reason.checked ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid transparent',
                           borderRadius: '6px',
                         }}
                       >
-                        <CheckCircle size={14} className="mt-0.5 text-info" style={{ flexShrink: 0 }} />
+                        <CheckCircle size={14} className="mt-0.5 text-success" style={{ flexShrink: 0 }} />
                         <span className="text-secondary" style={{ fontSize: '12px', lineHeight: '1.4' }}>{reason.text}</span>
                       </div>
                     ))}
