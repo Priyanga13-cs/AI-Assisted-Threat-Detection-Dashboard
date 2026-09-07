@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
+import { PieChart, TrendingUp, BarChart3 } from 'lucide-react';
 
 /**
  * AnomalyChart Component
@@ -25,10 +26,10 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
 
   useEffect(() => {
     const isLight = theme === 'light';
-    const textColor = isLight ? '#475569' : '#94a3b8';
-    const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.02)';
-    const legendColor = isLight ? '#0f172a' : '#94a3b8';
-    const borderColor = isLight ? '#ffffff' : '#0a0f12';
+    const textColor = isLight ? '#475569' : '#8e9fa6';
+    const gridColor = isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.03)';
+    const legendColor = isLight ? '#0f172a' : '#8e9fa6';
+    const borderColor = isLight ? '#ffffff' : '#070f0e';
 
     // ==========================================
     // 1. ANOMALY DISTRIBUTION DONUT CHART
@@ -48,7 +49,6 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
       }
     });
 
-    // Fallbacks if no data loaded yet
     if (events.length === 0) {
       normalCount = 15;
       suspiciousCount = 8;
@@ -62,16 +62,16 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
       distChartInst.current = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Normal', 'Suspicious', 'Critical'],
+          labels: ['Normal Telemetry', 'Suspicious Anomaly', 'Critical Threat'],
           datasets: [{
             data: [normalCount, suspiciousCount, criticalCount],
             backgroundColor: [
-              '#10b981', // Normal (Green)
+              '#10b981', // Normal (Emerald)
               '#f59e0b', // Suspicious (Amber)
               '#ef4444'  // Critical (Red)
             ],
             borderColor: borderColor,
-            borderWidth: 2,
+            borderWidth: 3,
             hoverOffset: 6
           }]
         },
@@ -84,20 +84,23 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
               labels: {
                 color: legendColor,
                 font: { size: 11, family: 'Inter', weight: '500' },
-                padding: 10,
+                padding: 12,
                 usePointStyle: true,
                 pointStyle: 'circle'
               }
             },
             tooltip: {
-              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(7, 16, 15, 0.95)',
               titleColor: isLight ? '#0f172a' : '#ffffff',
               bodyColor: isLight ? '#475569' : '#94a3b8',
-              borderColor: 'rgba(16, 185, 129, 0.15)',
-              borderWidth: 1
+              borderColor: 'rgba(16, 185, 129, 0.25)',
+              borderWidth: 1,
+              padding: 10,
+              boxPadding: 4,
+              usePointStyle: true
             }
           },
-          cutout: '70%'
+          cutout: '72%'
         },
         plugins: [{
           id: 'centerTotal',
@@ -120,13 +123,13 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            ctx.font = '700 8px Inter';
+            ctx.font = '700 8.5px Inter';
             ctx.fillStyle = textColor;
-            ctx.fillText(labelText, centerX, centerY - 8);
+            ctx.fillText(labelText, centerX, centerY - 9);
 
-            ctx.font = '800 18px Inter';
+            ctx.font = '800 20px Inter';
             ctx.fillStyle = isLight ? '#0f172a' : '#ffffff';
-            ctx.fillText(valText, centerX, centerY + 8);
+            ctx.fillText(valText, centerX, centerY + 9);
             ctx.restore();
           }
         }]
@@ -136,7 +139,6 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
     // ==========================================
     // 2. THREAT TREND LINE CHART (Time vs Anomalies)
     // ==========================================
-    // Aggregate anomaly count (Suspicious + Critical) by hour
     const hourlyAnomalies = {};
     for (let h = 0; h < 24; h++) {
       hourlyAnomalies[h] = 0;
@@ -146,13 +148,12 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
       const pred = String(evt.prediction || '').toUpperCase();
       const isAnomaly = pred === 'SUSPICIOUS' || pred === 'CRITICAL';
       if (isAnomaly && evt.time && typeof evt.time === 'string') {
-        const parts = evt.time.split(':');
-        // Handle ISO timestamps like 2026-07-30T01:12:00Z
         let hour = NaN;
         if (evt.time.includes('T')) {
           const timePart = evt.time.split('T')[1];
           hour = parseInt(timePart.split(':')[0], 10);
         } else {
+          const parts = evt.time.split(':');
           hour = parseInt(parts[0], 10);
         }
         if (!isNaN(hour) && hour >= 0 && hour < 24) {
@@ -161,14 +162,11 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
       }
     });
 
-    // Extract active ranges (skip hours that have no events at all to keep chart focused)
     const hours = Object.keys(hourlyAnomalies).map(Number);
     const trendLabels = hours.map(h => `${String(h).padStart(2, '0')}:00`);
     const trendValues = hours.map(h => hourlyAnomalies[h]);
 
-    // Fallbacks if no anomalies exist in dataset yet
     if (trendValues.every(v => v === 0)) {
-      // Simulate trend curve
       trendValues[1] = 2;
       trendValues[2] = 5;
       trendValues[3] = 4;
@@ -182,7 +180,7 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
 
       const lineCtx = trendCanvasRef.current.getContext('2d');
       const gradient = lineCtx.createLinearGradient(0, 0, 0, 180);
-      gradient.addColorStop(0, 'rgba(239, 68, 68, 0.3)');
+      gradient.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
       gradient.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
 
       trendChartInst.current = new Chart(lineCtx, {
@@ -193,10 +191,10 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
             label: 'Detected Anomalies',
             data: trendValues,
             borderColor: '#ef4444',
-            borderWidth: 3,
+            borderWidth: 2.5,
             backgroundColor: gradient,
             fill: true,
-            tension: 0.4,
+            tension: 0.38,
             pointBackgroundColor: '#ef4444',
             pointBorderColor: borderColor,
             pointBorderWidth: 2,
@@ -210,21 +208,22 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(7, 16, 15, 0.95)',
               titleColor: isLight ? '#0f172a' : '#ffffff',
               bodyColor: isLight ? '#475569' : '#94a3b8',
-              borderColor: 'rgba(239, 68, 68, 0.2)',
-              borderWidth: 1
+              borderColor: 'rgba(239, 68, 68, 0.25)',
+              borderWidth: 1,
+              padding: 10
             }
           },
           scales: {
             x: {
               grid: { color: gridColor },
-              ticks: { color: textColor, font: { size: 10 } }
+              ticks: { color: textColor, font: { size: 10, family: 'Inter' } }
             },
             y: {
               grid: { color: gridColor },
-              ticks: { color: textColor, font: { size: 10 }, precision: 0 }
+              ticks: { color: textColor, font: { size: 10, family: 'Inter' }, precision: 0 }
             }
           }
         }
@@ -249,7 +248,6 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
       else if (type.includes('privilege') || type.includes('escalation')) privilegeEscalation++;
     });
 
-    // Fallbacks
     if (bruteForce === 0 && malware === 0 && phishing === 0 && sqlInjection === 0 && privilegeEscalation === 0) {
       bruteForce = 6;
       malware = 4;
@@ -270,17 +268,17 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
             label: 'Detected Count',
             data: [bruteForce, malware, phishing, sqlInjection, privilegeEscalation],
             backgroundColor: [
-              'rgba(245, 158, 11, 0.75)', // Amber
-              'rgba(59, 130, 246, 0.75)',  // Blue
-              'rgba(168, 85, 247, 0.75)',  // Purple
-              'rgba(239, 68, 68, 0.75)',   // Red
-              'rgba(236, 72, 153, 0.75)'   // Pink
+              'rgba(245, 158, 11, 0.8)', // Amber
+              'rgba(59, 130, 246, 0.8)',  // Blue
+              'rgba(168, 85, 247, 0.8)',  // Purple
+              'rgba(239, 68, 68, 0.8)',   // Red
+              'rgba(236, 72, 153, 0.8)'   // Pink
             ],
             borderColor: [
               '#f59e0b', '#3b82f6', '#a855f7', '#ef4444', '#ec4899'
             ],
             borderWidth: 1.5,
-            borderRadius: 4
+            borderRadius: 6
           }]
         },
         options: {
@@ -289,19 +287,22 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(7, 16, 15, 0.95)',
               titleColor: isLight ? '#0f172a' : '#ffffff',
-              bodyColor: isLight ? '#475569' : '#94a3b8'
+              bodyColor: isLight ? '#475569' : '#94a3b8',
+              borderColor: 'rgba(59, 130, 246, 0.25)',
+              borderWidth: 1,
+              padding: 10
             }
           },
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: textColor, font: { size: 9 } }
+              ticks: { color: textColor, font: { size: 9.5, family: 'Inter' } }
             },
             y: {
               grid: { color: gridColor },
-              ticks: { color: textColor, font: { size: 10 }, precision: 0 }
+              ticks: { color: textColor, font: { size: 10, family: 'Inter' }, precision: 0 }
             }
           }
         }
@@ -320,12 +321,17 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
     <div className="row g-4 mb-4">
       {/* 1. Anomaly Distribution */}
       <div className="col-lg-4 col-12">
-        <div className="card bg-dark-subtle border border-secondary-subtle p-4 rounded-4 h-100" style={{
-          background: 'rgba(10, 15, 18, 0.4)',
-          backdropFilter: 'blur(10px)',
+        <div className="p-4 rounded-4 h-100" style={{
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)',
+          transition: 'var(--transition)'
         }}>
-          <h5 className="text-white fw-bold mb-1">Anomaly Distribution</h5>
-          <p className="text-secondary small mb-3">Ratio of normal vs anomalous predictions</p>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <PieChart size={16} className="text-success" />
+            <h5 className="fw-bold m-0" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>Anomaly Distribution</h5>
+          </div>
+          <p className="text-secondary small mb-3" style={{ fontSize: '12px' }}>Ratio of normal vs anomalous predictions</p>
           <div style={{ height: '220px', position: 'relative' }}>
             <canvas ref={distCanvasRef} />
           </div>
@@ -334,12 +340,17 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
 
       {/* 2. Threat Trend Line */}
       <div className="col-lg-4 col-12">
-        <div className="card bg-dark-subtle border border-secondary-subtle p-4 rounded-4 h-100" style={{
-          background: 'rgba(10, 15, 18, 0.4)',
-          backdropFilter: 'blur(10px)',
+        <div className="p-4 rounded-4 h-100" style={{
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)',
+          transition: 'var(--transition)'
         }}>
-          <h5 className="text-white fw-bold mb-1">Anomaly Trend Over Time</h5>
-          <p className="text-secondary small mb-3">Timeline tracking volume of detected anomalies</p>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <TrendingUp size={16} className="text-danger" />
+            <h5 className="fw-bold m-0" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>Anomaly Trend Over Time</h5>
+          </div>
+          <p className="text-secondary small mb-3" style={{ fontSize: '12px' }}>Timeline tracking volume of detected anomalies</p>
           <div style={{ height: '220px' }}>
             <canvas ref={trendCanvasRef} />
           </div>
@@ -348,12 +359,17 @@ export default function AnomalyChart({ events = [], theme = 'dark' }) {
 
       {/* 3. Threat Type Bar */}
       <div className="col-lg-4 col-12">
-        <div className="card bg-dark-subtle border border-secondary-subtle p-4 rounded-4 h-100" style={{
-          background: 'rgba(10, 15, 18, 0.4)',
-          backdropFilter: 'blur(10px)',
+        <div className="p-4 rounded-4 h-100" style={{
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)',
+          transition: 'var(--transition)'
         }}>
-          <h5 className="text-white fw-bold mb-1">Anomalies by Attack Vector</h5>
-          <p className="text-secondary small mb-3">Classification profile of threat intrusion vectors</p>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <BarChart3 size={16} className="text-primary" />
+            <h5 className="fw-bold m-0" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>Anomalies by Attack Vector</h5>
+          </div>
+          <p className="text-secondary small mb-3" style={{ fontSize: '12px' }}>Classification profile of threat intrusion vectors</p>
           <div style={{ height: '220px' }}>
             <canvas ref={typeCanvasRef} />
           </div>

@@ -1,37 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function App() {
+function AppContent() {
   const [currentRoute, setCurrentRoute] = useState('landing');
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('appTheme') || 'dark';
-  });
+  const [theme, setTheme] = useState(() => localStorage.getItem('appTheme') || 'dark');
+  const { user } = useAuth();
 
-  // Apply theme class to document element
   useEffect(() => {
-    if (theme === 'light') {
+    if (currentRoute === 'dashboard' && theme === 'light') {
       document.documentElement.classList.add('light-theme');
     } else {
       document.documentElement.classList.remove('light-theme');
     }
-  }, [theme]);
+    localStorage.setItem('appTheme', theme);
+  }, [theme, currentRoute]);
 
-  // Toggle theme helper
   const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('appTheme', nextTheme);
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   // Route Guard verification helper
   const handleNavigation = (route) => {
     if (route === 'dashboard') {
       const sessionUser = localStorage.getItem('currentUser');
-      if (!sessionUser) {
+      if (!sessionUser && !user) {
         setCurrentRoute('login');
         return;
       }
@@ -39,28 +36,23 @@ export default function App() {
     setCurrentRoute(route);
   };
 
-
   return (
     <>
       {currentRoute === 'landing' && (
         <LandingPage 
           onNavigate={handleNavigation} 
-          theme={theme}
-          toggleTheme={toggleTheme}
         />
       )}
       {currentRoute === 'login' && (
         <LoginPage 
           onNavigate={handleNavigation} 
           theme={theme}
-          toggleTheme={toggleTheme}
         />
       )}
       {currentRoute === 'signup' && (
         <SignupPage 
           onNavigate={handleNavigation} 
           theme={theme}
-          toggleTheme={toggleTheme}
         />
       )}
       {currentRoute === 'dashboard' && (
@@ -71,5 +63,13 @@ export default function App() {
         />
       )}
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

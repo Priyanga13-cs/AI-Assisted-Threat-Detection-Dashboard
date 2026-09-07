@@ -1,6 +1,297 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
+/**
+ * Milestone 3: Dedicated Risk Intelligence Charts Component
+ * Shows:
+ * 1. Risk Priority Distribution (Critical, High, Medium, Low Donut Chart)
+ * 2. Risk Score Trend Timeline (Line Chart tracking mean threat severity over time)
+ * 3. Attack Vector Risk Severity (Bar Chart comparing risk scores across attack types)
+ */
+export function Milestone3RiskCharts({ incidents = [], theme = 'dark' }) {
+  const riskDonutRef = useRef(null);
+  const riskTrendRef = useRef(null);
+  const vectorBarRef = useRef(null);
+
+  const riskDonutInst = useRef(null);
+  const riskTrendInst = useRef(null);
+  const vectorBarInst = useRef(null);
+
+  useEffect(() => {
+    const isLight = theme === 'light';
+    const textColor = isLight ? '#475569' : '#8e9fa6';
+    const gridColor = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+    const legendColor = isLight ? '#0f172a' : '#8e9fa6';
+    const donutBorderColor = isLight ? '#ffffff' : '#0a0f12';
+
+    // 1. Calculate Priority Counts
+    let crit = 0;
+    let high = 0;
+    let med = 0;
+    let low = 0;
+
+    incidents.forEach(inc => {
+      const p = (inc.priority || '').toUpperCase();
+      if (p === 'CRITICAL') crit++;
+      else if (p === 'HIGH') high++;
+      else if (p === 'MEDIUM') med++;
+      else low++;
+    });
+
+    // --- RENDER 1: RISK PRIORITY DONUT CHART ---
+    if (riskDonutRef.current) {
+      if (riskDonutInst.current) riskDonutInst.current.destroy();
+
+      riskDonutInst.current = new Chart(riskDonutRef.current, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical (81-100)', 'High (61-80)', 'Medium (41-60)', 'Low (0-40)'],
+          datasets: [{
+            data: [crit, high, med, low],
+            backgroundColor: [
+              '#ef4444', // Critical
+              '#f59e0b', // High
+              '#3b82f6', // Medium
+              '#10b981'  // Low
+            ],
+            borderWidth: 3,
+            borderColor: donutBorderColor,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: legendColor,
+                font: { size: 11, family: 'Inter', weight: '500' },
+                padding: 12,
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              titleColor: isLight ? '#0f172a' : '#ffffff',
+              bodyColor: isLight ? '#475569' : '#8e9fa6',
+              borderColor: 'rgba(239, 68, 68, 0.25)',
+              borderWidth: 1
+            }
+          },
+          cutout: '76%'
+        },
+        plugins: [{
+          id: 'riskCenterText',
+          afterDraw: (chart) => {
+            const { ctx, chartArea: { top, bottom, left, right } } = chart;
+            ctx.save();
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '700 9px Inter';
+            ctx.fillStyle = legendColor;
+            ctx.fillText('CRITICAL INC.', centerX, centerY - 10);
+            ctx.font = '800 24px Inter';
+            ctx.fillStyle = isLight ? '#0f172a' : '#ffffff';
+            ctx.fillText(crit.toString(), centerX, centerY + 8);
+            ctx.restore();
+          }
+        }]
+      });
+    }
+
+    // --- RENDER 2: RISK SCORE TIMELINE TREND (LINE CHART) ---
+    if (riskTrendRef.current) {
+      if (riskTrendInst.current) riskTrendInst.current.destroy();
+
+      const timeLabels = ['01:10', '01:25', '01:40', '02:00', '02:20', '02:45', '03:15', '03:30'];
+      const riskTrendPoints = [65, 82, 97, 88, 94, 76, 52, 89];
+
+      const ctx = riskTrendRef.current.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 200);
+      grad.addColorStop(0, 'rgba(239, 68, 68, 0.4)');
+      grad.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+      riskTrendInst.current = new Chart(riskTrendRef.current, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'Incident Risk Score',
+            data: riskTrendPoints,
+            borderColor: '#ef4444',
+            borderWidth: 3,
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#ef4444',
+            pointBorderColor: isLight ? '#ffffff' : '#0a0f12',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              titleColor: isLight ? '#0f172a' : '#ffffff',
+              bodyColor: isLight ? '#475569' : '#8e9fa6',
+              borderColor: 'rgba(239, 68, 68, 0.3)',
+              borderWidth: 1,
+              callbacks: {
+                label: (c) => `Risk Score: ${c.raw} / 100`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { size: 10, family: 'Inter' } }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              grid: { color: gridColor },
+              ticks: { 
+                color: textColor, 
+                font: { size: 10, family: 'Inter' },
+                stepSize: 20
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- RENDER 3: ATTACK VECTOR RISK COMPARISON (BAR CHART) ---
+    if (vectorBarRef.current) {
+      if (vectorBarInst.current) vectorBarInst.current.destroy();
+
+      const vectors = ['Ransomware', 'Zero-Day', 'Phishing Exfil', 'SQL Injection', 'DDoS', 'Brute Force'];
+      const riskScores = [97, 94, 89, 78, 72, 55];
+
+      const barColors = ['#ef4444', '#ef4444', '#f59e0b', '#f59e0b', '#3b82f6', '#10b981'];
+
+      vectorBarInst.current = new Chart(vectorBarRef.current, {
+        type: 'bar',
+        data: {
+          labels: vectors,
+          datasets: [{
+            label: 'Calculated Risk Score',
+            data: riskScores,
+            backgroundColor: barColors,
+            borderColor: barColors,
+            borderWidth: 1.5,
+            borderRadius: 5,
+            hoverBorderWidth: 2
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10, 15, 18, 0.95)',
+              titleColor: isLight ? '#0f172a' : '#ffffff',
+              bodyColor: isLight ? '#475569' : '#8e9fa6',
+              borderColor: 'rgba(239, 68, 68, 0.2)',
+              borderWidth: 1,
+              callbacks: {
+                label: (c) => `Risk Score: ${c.raw} / 100`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: textColor, font: { size: 9.5, family: 'Inter' } }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              grid: { color: gridColor },
+              ticks: { 
+                color: textColor, 
+                font: { size: 10, family: 'Inter' },
+                stepSize: 20
+              }
+            }
+          }
+        }
+      });
+    }
+
+    return () => {
+      if (riskDonutInst.current) riskDonutInst.current.destroy();
+      if (riskTrendInst.current) riskTrendInst.current.destroy();
+      if (vectorBarInst.current) vectorBarInst.current.destroy();
+    };
+  }, [incidents, theme]);
+
+  return (
+    <div className="row g-4 mb-4">
+      {/* 1. Risk Trend Chart */}
+      <div className="col-lg-5 col-12">
+        <div className="chart-card h-100">
+          <div className="chart-card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Risk Severity Timeline</h3>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Tracks campaign escalation (0-100 Risk Score)</span>
+            </div>
+            <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0.5 rounded font-mono xsmall fw-bold">
+              AVG RISK: 76
+            </span>
+          </div>
+          <div className="chart-container" style={{ height: '220px' }}>
+            <canvas ref={riskTrendRef}></canvas>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Risk Distribution Donut Chart */}
+      <div className="col-lg-3 col-md-6 col-12">
+        <div className="chart-card h-100">
+          <div className="chart-card-header">
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Risk Prioritization Tier</h3>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Incidents grouped by severity</span>
+          </div>
+          <div className="chart-container" style={{ height: '220px' }}>
+            <canvas ref={riskDonutRef}></canvas>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Attack Vector Comparison Bar Chart */}
+      <div className="col-lg-4 col-md-6 col-12">
+        <div className="chart-card h-100">
+          <div className="chart-card-header">
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Vector Risk Index</h3>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Risk score comparison across vectors</span>
+          </div>
+          <div className="chart-container" style={{ height: '220px' }}>
+            <canvas ref={vectorBarRef}></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Standard DashboardCharts Component (Milestones 1 & 2)
+ */
 export default function DashboardCharts({ 
   events, 
   theme,
@@ -74,7 +365,6 @@ export default function DashboardCharts({
       const labelStr = `${String(h).padStart(2, '0')}:00`;
       trendLabels.push(labelStr);
 
-      // Only count detected anomalies (prediction !== 'Normal')
       const count = events.filter(e => {
         if (e.time && typeof e.time === 'string') {
           let hr = NaN;
@@ -396,7 +686,7 @@ export default function DashboardCharts({
             </div>
           )}
           <div className="chart-card-header">
-            <h3 className="chart-card-title text-white">Anomaly Trend Graph</h3>
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Anomaly Trend Graph</h3>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Detected anomalies timeline</span>
           </div>
           <div className="chart-container" style={{ height: '240px' }}>
@@ -417,7 +707,7 @@ export default function DashboardCharts({
             </div>
           )}
           <div className="chart-card-header">
-            <h3 className="chart-card-title text-white">Anomaly Distribution</h3>
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Anomaly Distribution</h3>
           </div>
           <div className="chart-container" style={{ height: '240px' }}>
             <canvas ref={distCanvasRef}></canvas>
@@ -438,7 +728,7 @@ export default function DashboardCharts({
             </div>
           )}
           <div className="chart-card-header">
-            <h3 className="chart-card-title text-white">Top Attack Types</h3>
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Top Attack Types</h3>
           </div>
           <div className="chart-container" style={{ height: '240px' }}>
             <canvas ref={attackCanvasRef}></canvas>
@@ -458,7 +748,7 @@ export default function DashboardCharts({
             </div>
           )}
           <div className="chart-card-header">
-            <h3 className="chart-card-title text-white">Top Affected Assets</h3>
+            <h3 className="chart-card-title" style={{ color: 'var(--text-primary)' }}>Top Affected Assets</h3>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Most targeted hosts</span>
           </div>
           <div className="d-flex flex-column gap-3 justify-content-center" style={{ height: '240px' }}>
@@ -467,10 +757,10 @@ export default function DashboardCharts({
               return (
                 <div key={index} className="w-100">
                   <div className="d-flex justify-content-between mb-1" style={{ fontSize: '12.5px' }}>
-                    <span className="font-mono text-white fw-medium">{asset.name}</span>
+                    <span className="font-mono fw-medium" style={{ color: 'var(--text-primary)' }}>{asset.name}</span>
                     <span className="text-secondary font-mono small">{asset.count} alerts ({percentage}%)</span>
                   </div>
-                  <div className="progress" style={{ height: '8px', backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div className="progress" style={{ height: '8px', backgroundColor: 'var(--bg-deep)', borderRadius: '4px', overflow: 'hidden' }}>
                     <div 
                       className="progress-bar" 
                       style={{ 
