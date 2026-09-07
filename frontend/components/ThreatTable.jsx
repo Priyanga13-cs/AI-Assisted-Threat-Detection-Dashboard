@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ChevronDown, ChevronUp, AlertCircle, Eye, Download } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, AlertCircle, Eye, Download, Filter, RefreshCw, Layers } from 'lucide-react';
 
 /**
  * ThreatTable Component
@@ -150,30 +150,44 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
   };
 
   return (
-    <div className="threat-table-card card bg-dark-subtle border border-secondary-subtle rounded-4 p-4 mb-4" style={{
-      background: 'rgba(10, 15, 18, 0.4)',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)'
+    <div className="threat-table-card p-4 rounded-4 mb-4" style={{
+      backgroundColor: 'var(--bg-surface)',
+      border: '1px solid var(--border-color)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)',
+      transition: 'var(--transition)'
     }}>
       {/* Table Title and Toolbar */}
-      <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
         <div>
-          <h4 className="text-white fw-bold m-0">Threat Detection Logs</h4>
-          <p className="text-secondary small m-0 mt-1">Audit security logs parsed with live AI-assisted model outputs</p>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <Layers size={18} className="text-success" />
+            <h4 className="fw-bold m-0" style={{ color: 'var(--text-primary)', fontSize: '17px' }}>Threat Detection Telemetry Logs</h4>
+          </div>
+          <p className="text-secondary small m-0" style={{ fontSize: '12.5px' }}>
+            Real-time audit log of ML-classified network security events &amp; anomalies
+          </p>
         </div>
 
         {/* Toolbar */}
         <div className="d-flex flex-wrap align-items-center gap-2">
           {/* Search bar */}
           <div className="position-relative">
-            <Search className="position-absolute top-50 translate-middle-y text-secondary ms-3" size={16} />
+            <Search className="position-absolute top-50 translate-middle-y text-secondary ms-3" size={14} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              placeholder="Search by ID or type..."
-              className="form-control bg-dark border-secondary text-white rounded-pill px-4 ps-5 py-2 small"
-              style={{ fontSize: '13px', width: '220px' }}
+              placeholder="Search event ID, type, IP..."
+              className="rounded-pill px-4 ps-5 py-2 small"
+              style={{ 
+                fontSize: '12.5px', 
+                width: '230px',
+                backgroundColor: 'var(--bg-deep)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                transition: 'border-color 0.2s ease'
+              }}
             />
           </div>
 
@@ -181,8 +195,16 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
           <select
             value={severityFilter}
             onChange={(e) => { setSeverityFilter(e.target.value); setCurrentPage(1); }}
-            className="form-select bg-dark border-secondary text-white rounded-pill px-3 py-2 small"
-            style={{ fontSize: '13px', width: '130px' }}
+            className="rounded-pill px-3 py-2 small"
+            style={{ 
+              fontSize: '12.5px', 
+              width: '135px',
+              backgroundColor: 'var(--bg-deep)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
             title="Filter by Severity"
           >
             <option value="ALL">All Severities</option>
@@ -195,8 +217,16 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
           <select
             value={predictionFilter}
             onChange={(e) => { setPredictionFilter(e.target.value); setCurrentPage(1); }}
-            className="form-select bg-dark border-secondary text-white rounded-pill px-3 py-2 small"
-            style={{ fontSize: '13px', width: '140px' }}
+            className="rounded-pill px-3 py-2 small"
+            style={{ 
+              fontSize: '12.5px', 
+              width: '145px',
+              backgroundColor: 'var(--bg-deep)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
             title="Filter by Prediction"
           >
             <option value="ALL">All Predictions</option>
@@ -205,18 +235,23 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
             <option value="NORMAL">Normal</option>
           </select>
 
-          <button onClick={handleCSVExport} className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2">
+          <button 
+            onClick={handleCSVExport} 
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-1.5"
+            style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)', transition: 'var(--transition)' }}
+            title="Export filtered records to CSV"
+          >
             <Download size={14} />
-            <span style={{ fontSize: '13px' }}>Export</span>
+            <span style={{ fontSize: '12.5px', fontWeight: '600' }}>CSV Export</span>
           </button>
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="table-responsive" style={{ maxHeight: '420px', overflowY: 'auto' }}>
-        <table className="table table-dark table-hover table-striped-columns align-middle m-0" style={{ borderCollapse: 'separate', borderSpacing: '0 4px' }}>
-          <thead className="sticky-top bg-dark border-bottom border-secondary" style={{ zIndex: 5 }}>
-            <tr className="text-secondary small font-mono">
+      <div className="table-responsive" style={{ maxHeight: '440px', overflowY: 'auto' }}>
+        <table className="table align-middle m-0" style={{ borderCollapse: 'separate', borderSpacing: '0 4px', color: 'var(--text-primary)' }}>
+          <thead className="sticky-top" style={{ zIndex: 5, backgroundColor: 'var(--bg-surface)' }}>
+            <tr className="text-secondary small font-mono" style={{ borderBottom: '1px solid var(--border-color)', fontSize: '11px', letterSpacing: '0.04em' }}>
               <th className="py-3 px-3 cursor-pointer" onClick={() => handleSort('id')}>
                 Event ID {sortColumn === 'id' ? (sortDirection === 'asc' ? <ChevronUp size={12} className="inline ms-1" /> : <ChevronDown size={12} className="inline ms-1" />) : ''}
               </th>
@@ -224,7 +259,7 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
                 Event Type {sortColumn === 'name' ? (sortDirection === 'asc' ? <ChevronUp size={12} className="inline ms-1" /> : <ChevronDown size={12} className="inline ms-1" />) : ''}
               </th>
               <th className="py-3 px-2 cursor-pointer" onClick={() => handleSort('prediction')}>
-                AI Prediction {sortColumn === 'prediction' ? (sortDirection === 'asc' ? <ChevronUp size={12} className="inline ms-1" /> : <ChevronDown size={12} className="inline ms-1" />) : ''}
+                ML Classification {sortColumn === 'prediction' ? (sortDirection === 'asc' ? <ChevronUp size={12} className="inline ms-1" /> : <ChevronDown size={12} className="inline ms-1" />) : ''}
               </th>
               <th className="py-3 px-2 cursor-pointer" onClick={() => handleSort('confidence')}>
                 Confidence {sortColumn === 'confidence' ? (sortDirection === 'asc' ? <ChevronUp size={12} className="inline ms-1" /> : <ChevronDown size={12} className="inline ms-1" />) : ''}
@@ -242,13 +277,18 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
             {paginatedEvents.length === 0 ? (
               <tr>
                 <td colSpan="7" className="text-center text-secondary py-5">
-                  <AlertCircle size={24} className="mx-auto mb-2 text-warning d-block" />
-                  No events match the selected filters.
+                  <AlertCircle size={26} className="mx-auto mb-2 text-warning d-block" />
+                  <div className="fw-semibold">No telemetry records match the selected filters.</div>
+                  <div className="small text-secondary mt-1">Try resetting the search query or severity dropdown.</div>
                 </td>
               </tr>
             ) : (
               paginatedEvents.map((evt) => (
-                <tr key={evt.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <tr key={evt.id || evt.event_id} style={{ 
+                  borderBottom: '1px solid var(--border-color)', 
+                  transition: 'background-color 0.2s ease',
+                  cursor: 'pointer'
+                }}>
                   <td className="py-3 px-3">
                     <button
                       onClick={() => onSelectEvent(evt.id || evt.event_id)}
@@ -258,15 +298,19 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
                       {evt.id || evt.event_id}
                     </button>
                   </td>
-                  <td className="py-3 px-2 fw-semibold text-white">{evt.name || evt.event_type}</td>
+                  <td className="py-3 px-2 fw-semibold" style={{ color: 'var(--text-primary)', fontSize: '13px' }}>
+                    {evt.name || evt.event_type}
+                  </td>
                   <td className="py-3 px-2">
                     <span className={getPredictionBadgeClass(evt.prediction)}>
                       {evt.prediction}
                     </span>
                   </td>
-                  <td className="py-3 px-2 font-mono text-white fw-bold">{evt.confidence}%</td>
+                  <td className="py-3 px-2 font-mono fw-bold" style={{ color: 'var(--text-primary)', fontSize: '13px' }}>
+                    {evt.confidence}%
+                  </td>
                   <td className="py-3 px-2">
-                    <span className={`badge ${getSeverityBadgeClass(evt.severity)} px-2 py-1 rounded small`}>
+                    <span className={`badge ${getSeverityBadgeClass(evt.severity)} px-2.5 py-1 rounded small`}>
                       {evt.severity}
                     </span>
                   </td>
@@ -274,8 +318,8 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
                   <td className="py-3 px-3 text-end">
                     <button
                       onClick={() => onSelectEvent(evt.id || evt.event_id)}
-                      className="btn btn-sm btn-dark border border-secondary text-white rounded-pill px-3 d-inline-flex align-items-center gap-1 hover-mint"
-                      style={{ fontSize: '12px' }}
+                      className="btn btn-sm btn-outline-success rounded-pill px-3 d-inline-flex align-items-center gap-1.5"
+                      style={{ fontSize: '12px', fontWeight: '600' }}
                     >
                       <Eye size={12} />
                       <span>Investigate</span>
@@ -289,37 +333,51 @@ export default function ThreatTable({ events = [], onSelectEvent }) {
       </div>
 
       {/* Pagination Controls */}
-      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 pt-3 border-top border-secondary-subtle">
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
         <span className="small text-secondary font-mono">
-          Showing {startIndex + 1} to {Math.min(startIndex + pageSize, totalRecords)} of {totalRecords} records
+          Showing <strong>{totalRecords === 0 ? 0 : startIndex + 1}</strong> to <strong>{Math.min(startIndex + pageSize, totalRecords)}</strong> of <strong>{totalRecords}</strong> events
         </span>
 
         <div className="d-flex align-items-center gap-2">
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={activePage === 1}
-            className="btn btn-sm btn-dark border border-secondary px-3 py-1 rounded-pill"
+            className="btn btn-sm btn-outline-secondary px-3 py-1 rounded-pill"
+            style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
           >
             Prev
           </button>
           
           <div className="d-flex gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`btn btn-sm rounded-circle ${activePage === page ? 'btn-success text-white' : 'btn-dark text-secondary border border-secondary'}`}
-                style={{ width: '28px', height: '28px', padding: 0 }}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (activePage <= 3) {
+                pageNum = i + 1;
+              } else if (activePage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = activePage - 2 + i;
+              }
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`btn btn-sm rounded-circle ${activePage === pageNum ? 'btn-success text-white' : 'btn-outline-secondary text-secondary'}`}
+                  style={{ width: '28px', height: '28px', padding: 0, borderColor: 'var(--border-color)', fontSize: '12px', fontWeight: '600' }}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
           </div>
 
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={activePage === totalPages}
-            className="btn btn-sm btn-dark border border-secondary px-3 py-1 rounded-pill"
+            className="btn btn-sm btn-outline-secondary px-3 py-1 rounded-pill"
+            style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
           >
             Next
           </button>
