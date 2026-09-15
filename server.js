@@ -1205,5 +1205,5 @@ app.post('/api/login', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`[API] Infosys Threat Detection Backend Server running on http://localhost:${PORT}`);
+  console.log(`[API] Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics Backend running on http://localhost:${PORT}`);
 });

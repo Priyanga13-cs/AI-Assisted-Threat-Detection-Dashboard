@@ -1,8 +1,8 @@
 ================================================================================
-       Infosys Integrated Threat Detection Dashboard - Complete Work Report
+       Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics - Complete Work Report
 ================================================================================
 
-Project: SOC Threat Detection Dashboard Evolution (Milestones 1 & 2)
+Project: Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics (Milestones 1 & 2)
 Team: Data Visualization Frontend Team A
 Workspace: c:\Data_Visulization_Frontend_Team-a
 Last Updated: 2026-08-21 at 18:48:48+05:30 (Local Time)
@@ -87,7 +87,7 @@ Frontend Task 8: Filters & Add-On Utilities [Date: Thursday, 6 August 2026]
 
 
 ================================================================================
-                   MILESTONE 2: AI THREAT DETECTION DASHBOARD
+       MILESTONE 2: THREAT DETECTION & RISK MITIGATION DASHBOARD
 ================================================================================
 Focus: Machine learning outputs visualization, Explainable AI (XAI) triage pages,
 and Axios API client integration.

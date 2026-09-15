@@ -1,5 +1,5 @@
 /**
- * API Service Layer for SOC Threat Detection Dashboard (Milestones 1, 2 & 3)
+ * API Service Layer for Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics (Milestones 1, 2 & 3)
  * Fully integrated with Flask Backend (http://localhost:5000) and Express dev fallback.
  * Includes credentials: "include" for session cookies, parameter normalization,
  * robust error handling, and high-fidelity fallback data structures.

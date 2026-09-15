@@ -1,7 +1,7 @@
 ================================================================================
            MILESTONE 2: TECHNICAL REFERENCE & SPECIFICATION SHEET
 ================================================================================
-Project: SOC Threat Detection Dashboard - Milestone 2 Specification Archive
+Project: Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics - Milestone 2 Specification Archive
 Workspace Root: c:\Data_Visulization_Frontend_Team-a
 
 --------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ frontend/
 --------------------------------------------------------------------------------
 5. MILESTONE 2 DELIVERABLES CHECKLIST (FRONTEND FOCUS)
 --------------------------------------------------------------------------------
-- [ ] AI Threat Detection dashboard UI loaded
+- [ ] Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics UI loaded
 - [ ] Threat prediction logs table integrated
 - [ ] Confidence score radial gauges rendering
 - [ ] Anomaly distribution doughnut charts rendering

@@ -1,7 +1,7 @@
 ================================================================================
            MILESTONE 1: TECHNICAL REFERENCE & SPECIFICATION SHEET
 ================================================================================
-Project: SOC Threat Detection Dashboard - Milestone 1 Specification Archive
+Project: Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics - Milestone 1 Specification Archive
 Contact Reference: 2023.mayank.bajaj@ves.ac.in
 Workspace Root: c:\Data_Visulization_Frontend_Team-a
 

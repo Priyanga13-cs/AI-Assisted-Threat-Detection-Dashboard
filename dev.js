@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 
-console.log('Starting Threat Detection Suite...');
+console.log('Starting Security Operations Dashboard for Threat Detection with Risk Mitigation Analytics...');
 console.log('Booting backend API server...');
 
 // Start backend Express server (server.js) on port 5000
