@@ -1,5 +1,1455 @@
 [
   {
+    "id": "EVT-5628",
+    "event_id": "EVT-5628",
+    "time": "08:34:25",
+    "timestamp": "08:34:25",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-6371",
+    "event_id": "EVT-6371",
+    "time": "08:33:26",
+    "timestamp": "08:33:26",
+    "name": "DNS Query Leak Vulnerability Check",
+    "event_type": "DNS Query Leak Vulnerability Check",
+    "source": "192.168.12.94",
+    "source_ip": "192.168.12.94",
+    "target": "Gateway-Router-03",
+    "destination_ip": "Gateway-Router-03",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "DNS Query Leak Vulnerability Check triggered anomaly alert",
+      "Targeting enterprise asset Gateway-Router-03",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 50,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-5643",
+    "event_id": "EVT-5643",
+    "time": "08:32:25",
+    "timestamp": "08:32:25",
+    "name": "DNS Query Leak Vulnerability Check",
+    "event_type": "DNS Query Leak Vulnerability Check",
+    "source": "192.168.12.94",
+    "source_ip": "192.168.12.94",
+    "target": "Gateway-Router-03",
+    "destination_ip": "Gateway-Router-03",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "DNS Query Leak Vulnerability Check triggered anomaly alert",
+      "Targeting enterprise asset Gateway-Router-03",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 50,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-5630",
+    "event_id": "EVT-5630",
+    "time": "08:31:25",
+    "timestamp": "08:31:25",
+    "name": "Anomalous Traffic Spike Detected",
+    "event_type": "Anomalous Traffic Spike Detected",
+    "source": "185.220.101.4",
+    "source_ip": "185.220.101.4",
+    "target": "Asset-Storage-S3",
+    "destination_ip": "Asset-Storage-S3",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "Anomalous Traffic Spike Detected triggered anomaly alert",
+      "Targeting enterprise asset Asset-Storage-S3",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 54,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-4632",
+    "event_id": "EVT-4632",
+    "time": "08:31:04",
+    "timestamp": "08:31:04",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-2630",
+    "event_id": "EVT-2630",
+    "time": "08:30:52",
+    "timestamp": "08:30:52",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-0639",
+    "event_id": "EVT-0639",
+    "time": "08:30:40",
+    "timestamp": "08:30:40",
+    "name": "DNS Query Leak Vulnerability Check",
+    "event_type": "DNS Query Leak Vulnerability Check",
+    "source": "192.168.12.94",
+    "source_ip": "192.168.12.94",
+    "target": "Gateway-Router-03",
+    "destination_ip": "Gateway-Router-03",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "DNS Query Leak Vulnerability Check triggered anomaly alert",
+      "Targeting enterprise asset Gateway-Router-03",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 50,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-8638",
+    "event_id": "EVT-8638",
+    "time": "08:30:28",
+    "timestamp": "08:30:28",
+    "name": "DNS Query Leak Vulnerability Check",
+    "event_type": "DNS Query Leak Vulnerability Check",
+    "source": "192.168.12.94",
+    "source_ip": "192.168.12.94",
+    "target": "Gateway-Router-03",
+    "destination_ip": "Gateway-Router-03",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "DNS Query Leak Vulnerability Check triggered anomaly alert",
+      "Targeting enterprise asset Gateway-Router-03",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 50,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-6630",
+    "event_id": "EVT-6630",
+    "time": "08:30:16",
+    "timestamp": "08:30:16",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-4239",
+    "event_id": "EVT-4239",
+    "time": "08:30:04",
+    "timestamp": "08:30:04",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-2268",
+    "event_id": "EVT-2268",
+    "time": "08:29:52",
+    "timestamp": "08:29:52",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-0246",
+    "event_id": "EVT-0246",
+    "time": "08:29:40",
+    "timestamp": "08:29:40",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-8238",
+    "event_id": "EVT-8238",
+    "time": "08:29:28",
+    "timestamp": "08:29:28",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-6241",
+    "event_id": "EVT-6241",
+    "time": "08:29:16",
+    "timestamp": "08:29:16",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-4307",
+    "event_id": "EVT-4307",
+    "time": "08:29:04",
+    "timestamp": "08:29:04",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-2252",
+    "event_id": "EVT-2252",
+    "time": "08:28:52",
+    "timestamp": "08:28:52",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-0235",
+    "event_id": "EVT-0235",
+    "time": "08:28:40",
+    "timestamp": "08:28:40",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-8290",
+    "event_id": "EVT-8290",
+    "time": "08:28:28",
+    "timestamp": "08:28:28",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-6270",
+    "event_id": "EVT-6270",
+    "time": "08:28:16",
+    "timestamp": "08:28:16",
+    "name": "Anomalous Traffic Spike Detected",
+    "event_type": "Anomalous Traffic Spike Detected",
+    "source": "185.220.101.4",
+    "source_ip": "185.220.101.4",
+    "target": "Asset-Storage-S3",
+    "destination_ip": "Asset-Storage-S3",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "Anomalous Traffic Spike Detected triggered anomaly alert",
+      "Targeting enterprise asset Asset-Storage-S3",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 54,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-4237",
+    "event_id": "EVT-4237",
+    "time": "08:28:04",
+    "timestamp": "08:28:04",
+    "name": "Anomalous Traffic Spike Detected",
+    "event_type": "Anomalous Traffic Spike Detected",
+    "source": "185.220.101.4",
+    "source_ip": "185.220.101.4",
+    "target": "Asset-Storage-S3",
+    "destination_ip": "Asset-Storage-S3",
+    "severity": "WARNING",
+    "status": "UNRESOLVED",
+    "is_high_risk": false,
+    "prediction": "Suspicious",
+    "confidence": 78,
+    "reasons": [
+      "Anomalous Traffic Spike Detected triggered anomaly alert",
+      "Targeting enterprise asset Asset-Storage-S3",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 6.5,
+    "risk_score": 78,
+    "m3_risk_score": 54,
+    "m3_priority": "Medium",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 20,
+        "weight": 0.25,
+        "points": 5
+      },
+      "mlConfidence": {
+        "value": 78,
+        "weight": 0.25,
+        "points": 20
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 65,
+        "weight": 0.2,
+        "points": 13,
+        "cve": "None",
+        "cvss": 6.5
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-2258",
+    "event_id": "EVT-2258",
+    "time": "08:27:52",
+    "timestamp": "08:27:52",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
+    "id": "EVT-0256",
+    "event_id": "EVT-0256",
+    "time": "08:27:40",
+    "timestamp": "08:27:40",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-8245",
+    "event_id": "EVT-8245",
+    "time": "08:27:28",
+    "timestamp": "08:27:28",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-6245",
+    "event_id": "EVT-6245",
+    "time": "08:27:16",
+    "timestamp": "08:27:16",
+    "name": "SQL Injection Probe Blocked",
+    "event_type": "SQL Injection Probe Blocked",
+    "source": "109.112.5.88",
+    "source_ip": "109.112.5.88",
+    "target": "Payment-Backend-API",
+    "destination_ip": "Payment-Backend-API",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "SQL Injection Probe Blocked triggered anomaly alert",
+      "Targeting enterprise asset Payment-Backend-API",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 0,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 84,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 50,
+        "weight": 0.2,
+        "points": 10,
+        "tier": "Medium",
+        "type": "Employee Workstation"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 65,
+        "weight": 0.1,
+        "points": 7
+      }
+    }
+  },
+  {
+    "id": "EVT-4236",
+    "event_id": "EVT-4236",
+    "time": "08:27:04",
+    "timestamp": "08:27:04",
+    "name": "Unauthorized SSH Attempt",
+    "event_type": "Unauthorized SSH Attempt",
+    "source": "172.56.230.12",
+    "source_ip": "172.56.230.12",
+    "target": "Production-DB-Proxy",
+    "destination_ip": "Production-DB-Proxy",
+    "severity": "CRITICAL",
+    "status": "UNRESOLVED",
+    "is_high_risk": true,
+    "prediction": "Critical",
+    "confidence": 95,
+    "reasons": [
+      "Unauthorized SSH Attempt triggered anomaly alert",
+      "Targeting enterprise asset Production-DB-Proxy",
+      "High risk activity signature matched"
+    ],
+    "failed_login_attempts": 12,
+    "cvss_score": 9.8,
+    "risk_score": 95,
+    "m3_risk_score": 89,
+    "m3_priority": "Critical",
+    "m3_factors": {
+      "threatSeverity": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "mlConfidence": {
+        "value": 95,
+        "weight": 0.25,
+        "points": 24
+      },
+      "assetCriticality": {
+        "value": 100,
+        "weight": 0.2,
+        "points": 20,
+        "tier": "Critical",
+        "type": "Production Database"
+      },
+      "vulnerabilityExposure": {
+        "value": 98,
+        "weight": 0.2,
+        "points": 20,
+        "cve": "None",
+        "cvss": 9.8
+      },
+      "threatIntelligence": {
+        "value": 20,
+        "weight": 0.1,
+        "points": 2
+      }
+    }
+  },
+  {
     "event_id": "EVT-1001",
     "timestamp": "2026-07-30T01:12:00Z",
     "source_ip": "192.168.1.45",
